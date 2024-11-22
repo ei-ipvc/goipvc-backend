@@ -14,7 +14,11 @@ app.get("/", (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  console.log(req.body);
+  if (!req.body.username || !req.body.password) {
+    res.status(400).send("Missing username or password");
+    return;
+  }
+
   const { username, password } = req.body;
 
   try {
