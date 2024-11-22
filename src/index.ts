@@ -9,7 +9,7 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.send("Hello World!");
 });
 
@@ -31,16 +31,32 @@ app.post("/login", async (req, res) => {
         _user: username,
         _pass: password,
       },
-      { withCredentials: true }
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        withCredentials: true,
+      }
     );
 
     const cookies = response.headers["set-cookie"];
     const token =
-      cookies?.find((cookie) => cookie.includes("JSESSIONID")) || null;
+      cookies?.find((cookie) => cookie.includes("JSESSIONID"))?.split(";")[0] ||
+      null;
 
     res.status(response.status).json({
       academicos: token,
     });
+
+    // activate the session
+    axios.get(
+      "https://academicos.ipvc.pt/netpa/page?stage=ConsultaNotasAluno",
+      {
+        headers: {
+          Cookie: token,
+        },
+      }
+    );
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
