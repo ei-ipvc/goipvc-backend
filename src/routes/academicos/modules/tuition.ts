@@ -5,6 +5,7 @@ import * as cheerio from "cheerio";
 interface Tuition {
   desc: string;
   dueDate: string;
+  // ref: string;
   value: number;
   paymentDate: string;
   amountPaid: number;
@@ -40,7 +41,7 @@ router.post("/", async (req, res) => {
     const rows = $("#simpletable > tbody > tr")
       .filter((_, elem) => !!$(elem).attr("class"))
       .map((_, row) => {
-        const [, desc, dueDate, , value, paymentDate, amountPaid, debt, fine] =
+        const [, desc, dueDate, ref, value, paymentDate, amountPaid, debt, fine] =
           $(row)
             .find("td")
             .toArray()
@@ -52,6 +53,7 @@ router.post("/", async (req, res) => {
         return {
           desc,
           dueDate,
+          //ref,
           value: parseFloat(value),
           paymentDate,
           amountPaid: parseFloat(amountPaid),
