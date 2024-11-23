@@ -28,13 +28,13 @@ router.post("/", async (req, res) => {
       {
         headers: {
           Cookie: token,
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "User-Agent": "Mozilla/5.0 Chrome/99.0.0.0 Safari/537.36",
         },
+        responseType: "arraybuffer",
       }
     );
 
-    const html = response.data;
+    const html = Buffer.from(response.data, "binary").toString("latin1");
     const $ = cheerio.load(html);
 
     const rows = $("#simpletable > tbody > tr")
