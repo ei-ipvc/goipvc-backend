@@ -6,8 +6,6 @@ const router = Router();
 router.post("/", async (req, res) => {
   const { token } = req.body;
 
-  console.log(token);
-
   if (!token) {
     res.status(400).send("Missing token");
     return;
