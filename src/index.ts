@@ -1,6 +1,7 @@
 import express from "express";
 import authRouter from "./auth";
 import academicosRouter from "./routes/academicos/";
+import onRouter from "./routes/on/";
 
 const app = express();
 const port = 3000;
@@ -24,6 +25,7 @@ app.get("/", (_, res) => {
 
 app.use("/login", authRouter);
 app.use("/academicos", academicosRouter);
+app.use("/on", onRouter);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
