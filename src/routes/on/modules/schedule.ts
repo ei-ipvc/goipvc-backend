@@ -4,7 +4,9 @@ import axios from "axios";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const { token } = req.body;
+  const token = Object.entries(req.cookies)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("; "); // PHPSESSID=...; ONIPVC=...
   if (!token) {
     res.status(400).send("Missing token");
     return;
