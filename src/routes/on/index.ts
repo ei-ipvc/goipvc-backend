@@ -1,5 +1,6 @@
 import { Router } from "express";
-import getScheduleRouter from "./modules/getSchedule";
+import scheduleRouter from "./modules/schedule";
+import studentNameRouter from "./modules/studentName";
 
 const router = Router();
 
@@ -7,6 +8,7 @@ router.get("/", (_, res) => {
   res.send("response from /on1!");
 });
 
-router.use("/curricular-units", getScheduleRouter);
+router.use("/schedule", scheduleRouter);
+router.use("/student-name", studentNameRouter);
 
 export default router;

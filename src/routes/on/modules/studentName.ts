@@ -1,27 +1,32 @@
 import { Router } from "express";
 import axios from "axios";
+import * as cheerio from "cheerio";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   const { token } = req.body;
-
   if (!token) {
     res.status(400).send("Missing token");
     return;
   }
 
   try {
-    const response = await axios.get(
-      "https://on.ipvc.pt/v1/modulos/atividadeletiva/horario_source_v3.php",
-      {
-        headers: {
-          Cookie: token,
-        },
-      }
-    );
+    const response = await axios.get("https://on.ipvc.pt/dash.php", {
+      headers: {
+        Cookie: token,
+        "User-Agent": "Mozilla/5.0 Chrome/99.0.0.0 Safari/537.36",
+      },
+    });
 
-    res.status(response.status).json(response.data);
+    const $ = cheerio.load(response.data);
+    const studentName = $("div.d-none.d-md-block")
+      .contents()
+      .first()
+      .text()
+      .trim();
+
+    res.status(200).send(studentName);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
