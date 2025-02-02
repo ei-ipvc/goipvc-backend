@@ -13,7 +13,7 @@ interface FormattedUnit {
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   const { token } = req.body;
 
   if (!token) {
