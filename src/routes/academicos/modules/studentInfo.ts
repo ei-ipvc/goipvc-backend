@@ -5,30 +5,32 @@ import * as cheerio from "cheerio";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const token = Object.entries(req.cookies)
-    .map(([key, value]) => `${key}=${value}`)
-    .join("; "); // PHPSESSID=...; ONIPVC=...
+  const token = req.cookies.JSESSIONID;
   if (!token) {
     res.status(400).send("Missing token");
     return;
   }
 
   try {
-    const response = await axios.get("https://on.ipvc.pt/dash.php", {
+    const response = await axios.get("https://academicos.ipvc.pt/netpa/page", {
       headers: {
-        Cookie: token,
-        "User-Agent": "Mozilla/5.0 Chrome/99.0.0.0 Safari/537.36",
+        Cookie: `JSESSIONID=${token}`,
       },
     });
 
     const $ = cheerio.load(response.data);
-    const studentName = $("div.d-none.d-md-block")
-      .contents()
-      .first()
-      .text()
-      .trim();
+    const pInfo = $(
+      "#PerfilHomeDisplayInnerStage > div.perfilAreaContent > ul li"
+    )
+      .map((_, elem) => $(elem).text())
+      .get();
 
-    res.status(200).send(studentName);
+    const schoolName = pInfo[0];
+    const studentId = parseInt(pInfo[1].match(/\d+/g)![0] || "0");
+    const name = pInfo[2];
+    const course = pInfo[3];
+
+    res.status(200).json({ schoolName, studentId, name, course });
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res

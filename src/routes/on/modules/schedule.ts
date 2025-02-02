@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
     return;
   }
 
-  let currentAcademicYear, currentSemester, studentID;
+  let currentAcademicYear, currentSemester;
   try {
     const response = await axios.post(
       "https://on.ipvc.pt/v1/modulos/atividadeletiva/horarios_consulta_alunos.php",
@@ -32,9 +32,8 @@ router.get("/", async (req, res) => {
     res.status(200).send(response.data);
     currentAcademicYear = $("#param_anoletivoA option:selected").text();
     currentSemester = $("#param_semestreA option:selected").text();
-    studentID = $("#param_meuhorario_numutilizador").val();
 
-    console.log(currentAcademicYear, currentSemester, studentID);
+    console.log(currentAcademicYear, currentSemester);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res

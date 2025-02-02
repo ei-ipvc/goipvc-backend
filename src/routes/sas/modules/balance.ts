@@ -4,8 +4,9 @@ import axios from "axios";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const token = req.body.token,
-    refreshToken = req.body.refreshToken;
+  const token = req.headers.authorization;
+  const refreshToken = req.cookies.refreshTokenWEB;
+
   if (!token || !refreshToken) {
     res.status(400).send("Missing bearer or refresh token");
     return;

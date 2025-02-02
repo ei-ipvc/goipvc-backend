@@ -24,8 +24,8 @@ router.post("/", async (req, res) => {
       tokens: {
         academicos: academicosToken,
         ON: ONToken,
-        SASRefreshToken: SASTokens[1],
-        SASToken: SASTokens[0],
+        SASRefreshToken: SASTokens[0],
+        SASToken: SASTokens[1],
       },
     });
   } catch (error) {
