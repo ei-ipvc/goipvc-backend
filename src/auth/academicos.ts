@@ -1,16 +1,9 @@
-import { Router } from "express";
 import axios from "axios";
 
-const router = Router();
-
-router.post("/", async (req, res) => {
-  if (!req.body.username || !req.body.password) {
-    res.status(400).send("Missing username or password");
-    return;
-  }
-
-  const { username, password } = req.body;
-
+export const academicosStrategy = async (
+  username: string,
+  password: string
+) => {
   try {
     const response = await axios.post(
       "https://academicos.ipvc.pt/netpa/ajax?stage=loginstage",
@@ -34,12 +27,8 @@ router.post("/", async (req, res) => {
       cookies?.find((cookie) => cookie.includes("JSESSIONID"))?.split(";")[0] ||
       null;
 
-    res.status(response.status).json({
-      academicos: token,
-    });
-
-    // activate the session
-    axios.get(
+    // Activate the session
+    await axios.get(
       "https://academicos.ipvc.pt/netpa/page?stage=ConsultaNotasAluno",
       {
         headers: {
@@ -47,15 +36,13 @@ router.post("/", async (req, res) => {
         },
       }
     );
+
+    return token;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      res
-        .status(error.response ? error.response.status : 500)
-        .send(error.message);
+    if (error instanceof Error) {
+      throw new Error(error.message);
     } else {
-      res.status(500).send("An unexpected error occurred");
+      throw new Error("An unknown error occurred");
     }
   }
-});
-
-export default router;
+};
