@@ -1,9 +1,10 @@
 import { Router } from "express";
+
 import { academicosStrategy } from "./academicos";
 import { ONStrategy } from "./on";
+import { SASStrategy } from "./sas";
 
 const router = Router();
-
 router.post("/", async (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.status(400).send("Missing username or password");
@@ -13,13 +14,18 @@ router.post("/", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const academicosToken = await academicosStrategy(username, password);
-    const ONToken = await ONStrategy(username, password);
+    const [academicosToken, ONToken, SASTokens] = await Promise.all([
+      academicosStrategy(username, password),
+      ONStrategy(username, password),
+      SASStrategy(username, password),
+    ]);
 
     res.status(200).json({
       tokens: {
         academicos: academicosToken,
-        on: ONToken,
+        ON: ONToken,
+        SASRefreshToken: SASTokens[1],
+        SASToken: SASTokens[0],
       },
     });
   } catch (error) {

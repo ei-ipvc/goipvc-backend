@@ -5,7 +5,7 @@ export const academicosStrategy = async (
   password: string
 ) => {
   try {
-    const response = await axios.post(
+    const res = await axios.post(
       "https://academicos.ipvc.pt/netpa/ajax?stage=loginstage",
       {
         _formsubmitstage: "loginstage",
@@ -22,7 +22,7 @@ export const academicosStrategy = async (
       }
     );
 
-    const cookies = response.headers["set-cookie"];
+    const cookies = res.headers["set-cookie"];
     const token =
       cookies?.find((cookie) => cookie.includes("JSESSIONID"))?.split(";")[0] ||
       null;
