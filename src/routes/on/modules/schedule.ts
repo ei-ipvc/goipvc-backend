@@ -47,7 +47,36 @@ router.post("/", async (req, res) => {
     // JSON5 handles unquoted field names, single quotes values, ...
     const eventsData = JSON5.parse(match![1]);
 
-    res.status(200).json(eventsData);
+    const lessons = eventsData.map((lesson: any) => {
+      let [, shortName = "", classType = "", room = ""] =
+        /(.+) \[(.+)] .+- (.+)/.exec(lesson.title)!;
+
+      const className = ""; // @TODO
+
+      const teachers = lesson.datadocentes
+        .match(/&bull; (.*)<\/div>/)[1]
+        .split("; ")
+        .filter(
+          (t: string, _: number, arr: string[]) =>
+            t !== "N/D" || arr.length === 1
+        );
+
+      room = room.replace(/\./, "");
+
+      return {
+        shortName: shortName,
+        className: className,
+        classType: classType,
+        start: lesson.start,
+        end: lesson.end,
+        teachers: teachers,
+        room: room,
+        statusColor: lesson.color,
+      };
+    });
+
+    // res.status(200).json(eventsData);
+    res.status(200).json(lessons);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
