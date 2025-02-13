@@ -17,8 +17,8 @@ app.get("/", (_, res) => {
   res.send("Hello World!");
 });
 
-app.use("/login", authRouter);
 app.use("/academicos", academicosRouter);
+app.use("/auth", authRouter);
 app.use("/on", onRouter);
 app.use("/sas", sasRouter);
 
