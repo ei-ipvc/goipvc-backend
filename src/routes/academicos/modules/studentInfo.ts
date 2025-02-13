@@ -18,6 +18,11 @@ router.get("/", async (req, res) => {
       },
     });
 
+    if (response.data.includes("Ext.getCmp('loginRegister').showLogin()")) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
+
     const $ = cheerio.load(response.data);
     const pInfo = $(
       "#PerfilHomeDisplayInnerStage > div.perfilAreaContent > ul li"
