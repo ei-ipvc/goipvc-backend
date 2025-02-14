@@ -56,11 +56,17 @@ router.post("/", async (req, res) => {
     // JSON5 handles unquoted field names, single quotes values, ...
     const eventsData = JSON5.parse(match![1]);
 
+    // return raw data
+    // res.status(200).json(eventsData);
+
     const lessons = eventsData.map((lesson: any) => {
       let [, shortName = "", classType = "", room = ""] =
         /(.+) \[(.+)] .+- (.+)/.exec(lesson.title)!;
 
-      const className = ""; // @TODO
+      const cNameMatch =
+        lesson.datauc.match(/\| (.*) \|/) || lesson.datauc.match(/-(.*?)-/);
+      // @TODO: handle edge cases (if datauc is number it's a class code, etc.)
+      const className = cNameMatch ? cNameMatch[1] : "Unknown";
 
       const teachers = lesson.datadocentes
         .match(/&bull; (.*)<\/div>/)[1]
@@ -84,9 +90,24 @@ router.post("/", async (req, res) => {
         statusColor: lesson.color,
       };
     });
-
-    // res.status(200).json(eventsData);
+    // return processed data
     res.status(200).json(lessons);
+
+    // return injected data for testing
+    /*const json = [
+      {
+        shortName: "string",
+        className: "string",
+        classType: "string",
+        start: "2025-01-01T00:00:00",
+        end: "2025-01-01T00:00:00",
+        id: "string",
+        teachers: [],
+        room: string,
+        statusColor: "#000",
+      },
+    ];*/
+    // res.status(200).json(json);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
