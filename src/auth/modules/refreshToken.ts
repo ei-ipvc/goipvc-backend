@@ -1,8 +1,8 @@
 import { Router } from "express";
 
 import { academicosStrategy } from "../strategies/academicos";
-import { ONStrategy } from "../strategies/on";
-import { SASStrategy } from "../strategies/sas";
+import { onStrategy } from "../strategies/on";
+import { sasStrategy } from "../strategies/sas";
 
 const router = Router();
 router.post("/", async (req, res) => {
@@ -13,25 +13,25 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    let tokens;
+    let token;
     switch (strategy) {
       case 0:
-        tokens = await academicosStrategy(username, password);
-        res.status(200).json({ tokens: { academicos: tokens } });
+        token = await academicosStrategy(username, password);
+        res.status(200).json({ token: token });
         break;
       case 1:
         // moodle
         break;
       case 2:
-        tokens = await ONStrategy(username, password);
-        res.status(200).json({ tokens: { ON: tokens } });
+        token = await onStrategy(username, password);
+        res.status(200).json({ token: token });
         break;
       case 3:
-        tokens = await SASStrategy(username, password);
+        token = await sasStrategy(username, password);
         res.status(200).json({
           tokens: {
-            SASRefreshToken: tokens[0],
-            SASToken: tokens[1],
+            sas: token[0],
+            sasRefresh: token[1],
           },
         });
         break;
