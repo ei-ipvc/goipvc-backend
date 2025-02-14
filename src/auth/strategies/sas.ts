@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const SASStrategy = async (username: string, password: string) => {
+export const sasStrategy = async (username: string, password: string) => {
   try {
     const res = await axios.post(
       "https://sasocial.sas.ipvc.pt/api/authorization/authorize/device-type/WEB",
@@ -16,7 +16,7 @@ export const SASStrategy = async (username: string, password: string) => {
         ?.find((cookie) => cookie.includes("refreshTokenWEB"))
         ?.split(";")[0] || null;
 
-    const tokens = [refreshToken, res.data.data[0].token];
+    const tokens = [res.data.data[0].token, refreshToken];
     return tokens;
   } catch (error) {
     if (error instanceof Error) {

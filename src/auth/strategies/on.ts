@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const ONStrategy = async (username: string, password: string) => {
+export const onStrategy = async (username: string, password: string) => {
   try {
     const response = await axios.post(
       "https://on.ipvc.pt/login.php",

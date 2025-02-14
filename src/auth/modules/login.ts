@@ -1,8 +1,8 @@
 import { Router } from "express";
 
 import { academicosStrategy } from "../strategies/academicos";
-import { ONStrategy } from "../strategies/on";
-import { SASStrategy } from "../strategies/sas";
+import { onStrategy } from "../strategies/on";
+import { sasStrategy } from "../strategies/sas";
 
 const router = Router();
 router.post("/", async (req, res) => {
@@ -14,18 +14,18 @@ router.post("/", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const [academicosToken, ONToken, SASTokens] = await Promise.all([
+    const [academicosToken, onToken, sasTokens] = await Promise.all([
       academicosStrategy(username, password),
-      ONStrategy(username, password),
-      SASStrategy(username, password),
+      onStrategy(username, password),
+      sasStrategy(username, password),
     ]);
 
     res.status(200).json({
       tokens: {
         academicos: academicosToken,
-        ON: ONToken,
-        SASRefreshToken: SASTokens[0],
-        SASToken: SASTokens[1],
+        on: onToken,
+        sas: sasTokens[0],
+        sasRefresh: sasTokens[1],
       },
     });
   } catch (error) {
