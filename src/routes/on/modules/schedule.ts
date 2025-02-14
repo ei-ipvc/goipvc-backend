@@ -78,6 +78,7 @@ router.post("/", async (req, res) => {
         classType: classType,
         start: lesson.start,
         end: lesson.end,
+        id: lesson.dataeventoid,
         teachers: teachers,
         room: room,
         statusColor: lesson.color,
