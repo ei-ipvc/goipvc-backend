@@ -38,8 +38,17 @@ router.post("/", async (req, res) => {
       }
     );
 
-    const $ = cheerio.load(response.data);
+    // random line from OK response
+    if (
+      !response.data.includes(
+        "modulos/atividadeletiva/calendar240/fullcalendar.css"
+      )
+    ) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
 
+    const $ = cheerio.load(response.data);
     // the 8th <script> tag defines events_data, which holds the schedule payload
     const script = $("script").eq(8).html()!;
     const match = script.match(/events_data\s*=\s*(.+);/);
