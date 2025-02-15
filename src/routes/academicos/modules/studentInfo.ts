@@ -32,7 +32,10 @@ router.get("/", async (req, res) => {
 
     const schoolName = pInfo[0];
     const studentId = parseInt(pInfo[1].match(/\d+/g)![0] || "0");
-    const name = pInfo[2];
+    const name = pInfo[2].replace(
+      /\S+/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
+    );
     const course = pInfo[3];
 
     res.status(200).json({ schoolName, studentId, name, course });
