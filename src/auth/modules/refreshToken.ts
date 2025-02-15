@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { academicosStrategy } from "../strategies/academicos";
+import { moodleStrategy } from "../strategies/moodle";
 import { onStrategy } from "../strategies/on";
 import { sasStrategy } from "../strategies/sas";
 
@@ -20,7 +21,13 @@ router.post("/", async (req, res) => {
         res.status(200).json({ token: token });
         break;
       case 1:
-        // moodle
+        token = await moodleStrategy(username, password);
+        res.status(200).json({
+          tokens: {
+            moodle: token[0],
+            moodleToken: token[1],
+          },
+        });
         break;
       case 2:
         token = await onStrategy(username, password);

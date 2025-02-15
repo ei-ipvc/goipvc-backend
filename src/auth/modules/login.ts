@@ -3,6 +3,7 @@ import { Router } from "express";
 import { academicosStrategy } from "../strategies/academicos";
 import { onStrategy } from "../strategies/on";
 import { sasStrategy } from "../strategies/sas";
+import { moodleStrategy } from "../strategies/moodle";
 
 const router = Router();
 router.post("/", async (req, res) => {
@@ -14,18 +15,25 @@ router.post("/", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const [academicosToken, onToken, sasTokens] = await Promise.all([
-      academicosStrategy(username, password),
-      onStrategy(username, password),
-      sasStrategy(username, password),
-    ]);
+    const [academicosToken, onToken, sasTokens, moodleTokens] =
+      await Promise.all([
+        academicosStrategy(username, password),
+        onStrategy(username, password),
+        sasStrategy(username, password),
+        moodleStrategy(username, password),
+      ]);
 
     res.status(200).json({
       tokens: {
         academicos: academicosToken,
+
         on: onToken,
+
         sas: sasTokens[0],
         sasRefresh: sasTokens[1],
+
+        moodle: moodleTokens[0],
+        moodleToken: moodleTokens[1],
       },
     });
   } catch (error) {
