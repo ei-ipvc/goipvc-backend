@@ -10,21 +10,14 @@ router.post("/", async (req: Request, res: Response) => {
     return;
   }
 
-  const userid = req.body.userid;
-  if (!userid) {
-    res.status(400).send("Missing userid");
-    return;
-  }
-
   try {
     const response: AxiosResponse = await axios.get(
       `https://elearning.ipvc.pt/ipvc2024/webservice/rest/server.php`,
       {
         params: {
           wstoken: token,
-          wsfunction: "core_enrol_get_users_courses",
+          wsfunction: "mod_assign_get_assignments",
           moodlewsrestformat: "json",
-          userid: userid,
         },
       }
     );
@@ -34,15 +27,24 @@ router.post("/", async (req: Request, res: Response) => {
       return;
     }
 
-    const courses = response.data.map((course: any) => ({
-      id: course.id,
-      shortName: course.shortname,
-      fullName: course.fullname,
-      displayName: course.displayname, // @TODO: test if this is the same as fullname
-      code: course.idnumber,
-    }));
+    /*
+    const assignments = response.data.courses.flatMap(
+      (course: any) => course.assignments
+    );
+    */
 
-    res.status(response.status).json(courses);
+    const assignments = response.data.courses.flatMap((course: any) =>
+      course.assignments.map((assignment: any) => ({
+        id: assignment.id,
+        courseId: assignment.course,
+        name: assignment.name,
+        dueDate: assignment.duedate,
+        modDate: assignment.timemodified,
+        complete: assignment.completionsubmit,
+      }))
+    );
+
+    res.status(response.status).json(assignments);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res

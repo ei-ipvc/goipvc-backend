@@ -15,17 +15,22 @@ interface Summary {
 
 const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.post("/", async (req: Request, res: Response) => {
   const token = req.cookies.MoodleSession;
   if (!token) {
     res.status(400).send("Missing token");
     return;
   }
 
+  const classId = req.body.classId;
+  if (!classId) {
+    res.status(400).send("Missing Moodle classId");
+    return;
+  }
+
   try {
-    const id = 1386; // @TODO: get course id from user and store it into db
     const response: AxiosResponse = await axios.get(
-      `https://elearning.ipvc.pt/ipvc2024/course/view.php?id=${id}`,
+      `https://elearning.ipvc.pt/ipvc2024/course/view.php?id=${classId}`,
       {
         headers: {
           Cookie: `MoodleSession=${token};`,
@@ -39,8 +44,6 @@ router.get("/", async (req: Request, res: Response) => {
     }
 
     const $ = cheerio.load(response.data);
-
-    console.log(response.data);
 
     const summaries: Summary[] = $("#ipvc_sumarios table tbody tr td table")
       .toArray()
