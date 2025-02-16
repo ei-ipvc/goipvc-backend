@@ -29,13 +29,9 @@ router.get("/", async (req: Request, res: Response) => {
       {
         headers: {
           Cookie: `MoodleSession=${token};`,
-          //"User-Agent": "Mozilla/5.0 Chrome/99.0.0.0 Safari/537.36",
         },
-        // responseType: "arraybuffer",
       }
     );
-
-    console.log(`MoodleSession=${token}`);
 
     if (response.data.includes("loginform")) {
       res.status(401).send("Unauthorized");

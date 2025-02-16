@@ -1,12 +1,14 @@
 import { Router } from "express";
-import courseSummariesRouter from "./modules/courseSummaries";
+import classSummariesRouter from "./modules/classSummaries";
+import courseUnitsRouter from "./modules/courseUnits";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/", (_, res) => {
   res.send("response from /moodle1!");
 });
 
-router.use("/course-summaries", courseSummariesRouter);
+router.use("/class-summaries", classSummariesRouter);
+router.use("/course-units", courseUnitsRouter);
 
 export default router;
