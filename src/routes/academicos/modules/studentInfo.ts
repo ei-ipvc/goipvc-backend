@@ -45,6 +45,7 @@ router.get("/", async (req, res) => {
       .filter((char) => char.match(/[A-Z]/))
       .join("");
     const course = pInfo[3];
+    const courseId = parseInt(pInfo[3].match(/\[(\d+)\]/)![1]);
     const courseInitials = course
       .split(" ")
       .map((word) => (word[0].match(/[a-zA-Z]/) ? word[0] : ""))
@@ -52,12 +53,13 @@ router.get("/", async (req, res) => {
 
     res.status(200).json({
       studentId,
+      course,
+      courseId,
+      courseInitials,
       firstName,
       fullName,
       schoolName,
       schoolInitials,
-      course,
-      courseInitials,
     });
   } catch (error) {
     if (axios.isAxiosError(error)) {
