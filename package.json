@@ -1,5 +1,5 @@
 {
-  "name": "ipvc-api-ts",
+  "name": "goipvc-backend",
   "version": "1.0.0",
   "description": "middleman counterpart",
   "main": "index.js",
