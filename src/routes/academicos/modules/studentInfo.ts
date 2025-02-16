@@ -30,15 +30,35 @@ router.get("/", async (req, res) => {
       .map((_, elem) => $(elem).text())
       .get();
 
-    const schoolName = pInfo[0];
     const studentId = parseInt(pInfo[1].match(/\d+/g)![0] || "0");
-    const name = pInfo[2].replace(
+    const fullName = pInfo[2].replace(
       /\S+/g,
       (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
     );
+    const firstName = fullName.split(" ")[0];
+    const schoolName = pInfo[0];
+    const schoolInitials = schoolName
+      .replace(" do Instituto Politécnico de Viana do Castelo", "")
+      .trim()
+      .split(" ")
+      .map((word) => word[0])
+      .filter((char) => char.match(/[A-Z]/))
+      .join("");
     const course = pInfo[3];
+    const courseInitials = course
+      .split(" ")
+      .map((word) => (word[0].match(/[a-zA-Z]/) ? word[0] : ""))
+      .join("");
 
-    res.status(200).json({ schoolName, studentId, name, course });
+    res.status(200).json({
+      studentId,
+      firstName,
+      fullName,
+      schoolName,
+      schoolInitials,
+      course,
+      courseInitials,
+    });
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
