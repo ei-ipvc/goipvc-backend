@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 
 import authRouter from "./auth";
 import academicosRouter from "./routes/academicos/";
+import moodleRouter from "./routes/moodle/";
 import onRouter from "./routes/on/";
 import sasRouter from "./routes/sas/";
 
@@ -17,8 +18,10 @@ app.get("/", (_, res) => {
   res.send("Hello World!");
 });
 
-app.use("/academicos", academicosRouter);
 app.use("/auth", authRouter);
+
+app.use("/academicos", academicosRouter);
+app.use("/moodle", moodleRouter);
 app.use("/on", onRouter);
 app.use("/sas", sasRouter);
 
