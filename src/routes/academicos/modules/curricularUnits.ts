@@ -14,8 +14,7 @@ interface FormattedUnit {
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const { token } = req.body;
-
+  const token = req.cookies.JSESSIONID;
   if (!token) {
     res.status(400).send("Missing token");
     return;
@@ -27,10 +26,15 @@ router.get("/", async (req, res) => {
       "https://academicos.ipvc.pt/netpa/ajax/consultanotasaluno/inscricoes",
       {
         headers: {
-          Cookie: token,
+          Cookie: `JSESSIONID=${token}`,
         },
       }
     );
+
+    if (!response.data.success) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
 
     const formattedUnits: FormattedUnit[] = response.data.result.map(
       (item: any) => ({
