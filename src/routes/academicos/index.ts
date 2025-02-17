@@ -1,15 +1,15 @@
 import { Router } from "express";
-import curricularUnitsRouter from "./modules/curricularUnits";
+import classesRouter from "./modules/classes";
 import tuitionRouter from "./modules/tuition";
 import studentInfoRouter from "./modules/studentInfo";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/", (_, res) => {
   res.send("response from /academicos1!");
 });
 
-router.use("/curricular-units", curricularUnitsRouter);
+router.use("/classes", classesRouter);
 router.use("/tuition", tuitionRouter);
 router.use("/student-info", studentInfoRouter);
 
