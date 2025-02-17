@@ -16,8 +16,7 @@ interface Tuition {
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const { token } = req.body;
-
+  const token = req.cookies.JSESSIONID;
   if (!token) {
     res.status(400).send("Missing token");
     return;
@@ -41,13 +40,22 @@ router.get("/", async (req, res) => {
     const rows = $("#simpletable > tbody > tr")
       .filter((_, elem) => !!$(elem).attr("class"))
       .map((_, row) => {
-        const [, desc, dueDate, ref, value, paymentDate, amountPaid, debt, fine] =
-          $(row)
-            .find("td")
-            .toArray()
-            .map((cell) =>
-              $(cell).text().trim().replace(/\n/g, "").replace(" Eur", "")
-            );
+        const [
+          ,
+          desc,
+          dueDate,
+          ref,
+          value,
+          paymentDate,
+          amountPaid,
+          debt,
+          fine,
+        ] = $(row)
+          .find("td")
+          .toArray()
+          .map((cell) =>
+            $(cell).text().trim().replace(/\n/g, "").replace(" Eur", "")
+          );
 
         if (!desc) return null; // skip empty rows
         return {
