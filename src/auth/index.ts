@@ -1,14 +1,62 @@
 import { Router } from "express";
-import loginRouter from "./modules/login";
-import refreshTokenRouter from "./modules/refreshToken";
+import { academicosStrategy } from "./strategies/academicos";
+import { moodleStrategy } from "./strategies/moodle";
+import { onStrategy } from "./strategies/on";
+import { sasStrategy } from "./strategies/sas";
 
 const router = Router();
 
-router.get("/", (_, res) => {
-  res.send("response from /auth!");
-});
+router.post("/", async (req, res) => {
+  const { username, password, academicos, moodle, on, sas } = req.body;
+  if (!username || !password) {
+    res.status(400).send("Missing username or password");
+    return;
+  }
 
-router.use("/login", loginRouter);
-router.use("/refresh-token", refreshTokenRouter);
+  try {
+    const tokens: any = {};
+    const promises: Promise<void>[] = [];
+
+    if (academicos)
+      promises.push(
+        academicosStrategy(username, password).then((token) => {
+          tokens.academicos = token;
+        })
+      );
+    if (moodle)
+      promises.push(
+        moodleStrategy(username, password).then(([cookie, token]) => {
+          tokens.moodle = { cookie, token };
+        })
+      );
+    if (on)
+      promises.push(
+        onStrategy(username, password).then((token) => {
+          tokens.on = token;
+        })
+      );
+    if (sas)
+      promises.push(
+        sasStrategy(username, password).then(([token, refreshToken]) => {
+          tokens.sas = { token, refreshToken };
+        })
+      );
+
+    await Promise.all(promises);
+
+    if (Object.keys(tokens).length === 0) {
+      res.status(400).send("No valid authentication strategy provided");
+      return;
+    }
+
+    res.status(200).json(tokens);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    } else {
+      res.status(500).send("An unknown error occurred");
+    }
+  }
+});
 
 export default router;
