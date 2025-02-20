@@ -37,6 +37,11 @@ router.get("/", async (req, res) => {
     const html = Buffer.from(response.data, "binary").toString("latin1");
     const $ = cheerio.load(html);
 
+    if (html.includes("NO_USER_LOGGED")) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
+
     const rows = $("#simpletable > tbody > tr")
       .filter((_, elem) => !!$(elem).attr("class"))
       .map((_, row) => {
@@ -70,6 +75,8 @@ router.get("/", async (req, res) => {
         } as Tuition;
       })
       .get();
+
+    console.log(rows);
 
     res.status(response.status).json(rows);
   } catch (error) {
