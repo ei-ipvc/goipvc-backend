@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
       "https://academicos.ipvc.pt/netpa/DIFTasks?_AP_=9&_MD_=1&_SR_=173&_ST_=1",
       {
         headers: {
-          Cookie: token,
+          Cookie: `JSESSIONID=${token}`,
           "User-Agent": "Mozilla/5.0 Chrome/99.0.0.0 Safari/537.36",
         },
         responseType: "arraybuffer",
@@ -65,7 +65,7 @@ router.get("/", async (req, res) => {
         if (!desc) return null; // skip empty rows
         return {
           desc,
-          dueDate,
+          dueDate: dueDate.replace("(1)", ""),
           //ref,
           value: parseFloat(value),
           paymentDate,
