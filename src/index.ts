@@ -1,5 +1,13 @@
 import { Client } from "pg";
 import dotenv from "dotenv";
+import express, { Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
+
+import authRouter from "./auth";
+import academicosRouter from "./routes/academicos/";
+import moodleRouter from "./routes/moodle/";
+import onRouter from "./routes/on/";
+import sasRouter from "./routes/sas/";
 
 dotenv.config();
 
@@ -13,23 +21,22 @@ const client = new Client({
 
 client.connect();
 
-import express from "express";
-import cookieParser from "cookie-parser";
-
-import authRouter from "./auth";
-import academicosRouter from "./routes/academicos/";
-import moodleRouter from "./routes/moodle/";
-import onRouter from "./routes/on/";
-import sasRouter from "./routes/sas/";
-
 const app = express();
 const port = 3000;
 
-app.use((req, _, next) => {
+app.use((req: Request, res: Response, next: NextFunction): void => {
   console.log(`${req.method} ${req.url}`);
+  console.log(req.headers.cookie);
+
+  if (req.headers.cookie && req.headers.cookie.includes("string")) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  console.log("");
+
   next();
 });
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
