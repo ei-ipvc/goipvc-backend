@@ -23,7 +23,9 @@ router.get("/", async (req, res) => {
       }
     );
 
-    res.status(200).json(response.data.data[0].current_balance);
+    res
+      .status(200)
+      .send(parseFloat(response.data.data[0].current_balance).toFixed(2));
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
