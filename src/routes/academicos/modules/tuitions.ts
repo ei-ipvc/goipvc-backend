@@ -76,8 +76,6 @@ router.get("/", async (req, res) => {
       })
       .get();
 
-    console.log(rows);
-
     res.status(response.status).json(rows);
   } catch (error) {
     if (axios.isAxiosError(error)) {
