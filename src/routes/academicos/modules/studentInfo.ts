@@ -35,7 +35,9 @@ router.get("/", async (req, res) => {
       /\S+/g,
       (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
     );
-    const firstName = fullName.split(" ")[0];
+    let firstName = fullName.split(" ")[0];
+    firstName =
+      firstName.charAt(0).toUpperCase() + firstName.substring(1).toLowerCase();
     const schoolName = pInfo[0];
     const schoolInitials = schoolName
       .replace(" do Instituto Politécnico de Viana do Castelo", "")
@@ -48,7 +50,7 @@ router.get("/", async (req, res) => {
     const courseId = parseInt(pInfo[3].match(/\[(\d+)\]/)![1]);
     const courseInitials = course
       .split(" ")
-      .map((word) => (word[0].match(/[a-zA-Z]/) ? word[0] : ""))
+      .map((word) => (word[0].match(/[A-Z]/) ? word[0] : ""))
       .join("");
 
     res.status(200).json({
