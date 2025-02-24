@@ -35,9 +35,6 @@ router.get("/", async (req, res) => {
       /\S+/g,
       (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
     );
-    let firstName = fullName.split(" ")[0];
-    firstName =
-      firstName.charAt(0).toUpperCase() + firstName.substring(1).toLowerCase();
     const schoolName = pInfo[0];
     const schoolInitials = schoolName
       .replace(" do Instituto Politécnico de Viana do Castelo", "")
@@ -58,7 +55,6 @@ router.get("/", async (req, res) => {
       course,
       courseId,
       courseInitials,
-      firstName,
       fullName,
       schoolName,
       schoolInitials,

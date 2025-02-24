@@ -33,7 +33,11 @@ router.get("/", async (req, res) => {
       .text()
       .trim()
       .split(" ")[0];
-    res.status(200).send(firstName);
+    res
+      .status(200)
+      .send(
+        firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+      );
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
