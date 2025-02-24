@@ -3,11 +3,12 @@ import axios from "axios";
 
 interface FormattedUnit {
   id: number;
+  courseId: number;
   name: string;
-  finalGrade: string | number;
-  academicYear: string;
-  studyYear: number;
+  year: number;
   semester: number;
+  evaluationType: string;
+  grade: [string, string, string, string][];
   ects: number;
 }
 
@@ -20,10 +21,9 @@ router.get("/", async (req, res) => {
     return;
   }
 
-  // 'https://academicos.ipvc.pt/netpa/ajax/consultanotasaluno/inscricoes?cdLectivoFilter=null&periodoFilter=null&anoCurricular=null&estadoFilter=null&disciplinaFilter=null',
   try {
     const response = await axios.get(
-      "https://academicos.ipvc.pt/netpa/ajax/consultanotasaluno/inscricoes",
+      "https://academicos.ipvc.pt/netpa/ajax/situacaodealuno/tabelaPlanoEstudos",
       {
         headers: {
           Cookie: `JSESSIONID=${token}`,
@@ -36,20 +36,45 @@ router.get("/", async (req, res) => {
       return;
     }
 
-    const formattedUnits: FormattedUnit[] = response.data.result.map(
-      (item: any) => ({
-        id: parseInt(item.CD_DISCIP),
-        name: item.DS_DISCIP,
-        finalGrade:
-          item.notaFinalCalcField === "-"
-            ? "-"
-            : parseFloat(item.notaFinalCalcField),
-        academicYear: item.CD_LECTIVO,
-        studyYear: parseInt(item.CD_A_S_CUR),
-        semester: parseInt(item.CD_DURACAO.replace("S", "")),
-        ects: parseInt(item.ectsCalcField),
+    const unitsMap: { [key: number]: FormattedUnit } = {};
+
+    response.data.result.forEach((item: any) => {
+      const id = item.CD_DISCIP;
+      if (!unitsMap[id])
+        unitsMap[id] = {
+          id,
+          courseId: item.CD_CURSO,
+          name: item.DS_DISCIP,
+          year: item.CD_A_S_CUR,
+          semester: parseInt(item.CD_DURACAO_PD.replace("S", "")),
+          evaluationType: item.DS_AVALIA,
+          grade: [],
+          ects: item.NR_CRE_EUR_PD,
+        };
+      unitsMap[id].grade.push([
+        item.NR_NOT_DIS,
+        item.DS_STATUS,
+        item.DT_FIM_DIS,
+        item.CD_FMTLECT,
+      ]);
+    });
+
+    const formattedUnits = Object.values(unitsMap)
+      .sort((a, b) => {
+        if (a.year < b.year) return -1;
+        if (a.year > b.year) return 1;
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
       })
-    );
+      .map((unit) => {
+        unit.grade.sort((a, b) => {
+          if (a[2] < b[2]) return 1;
+          if (a[2] > b[2]) return -1;
+          return 0;
+        });
+        return unit;
+      });
 
     res.status(response.status).json(formattedUnits);
   } catch (error) {
