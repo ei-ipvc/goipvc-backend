@@ -52,14 +52,17 @@ router.post("/", async (req, res) => {
       const script = $("script").eq(8).html()!;
       const match = script.match(/events_data\s*=\s*(.+);/);
       const eventsData = JSON5.parse(match![1]);
+      // return res.status(200).json(eventsData);
 
       return eventsData.map((lesson: any) => {
+        const courseId = parseInt(lesson.datauc.match(/^(\d+)/)[1]);
+
         let [, shortName = "", classType = "", room = ""] =
           /(.+) \[(.+)] .+- (.+)/.exec(lesson.title)!;
 
         const cNameMatch =
           lesson.datauc.match(/\| (.*) \|/) || lesson.datauc.match(/-(.*?)-/);
-        const className = cNameMatch ? cNameMatch[1] : "Unknown";
+        const className = cNameMatch ? cNameMatch[1] : "Desconhecido";
 
         const teachers = lesson.datadocentes
           .match(/&bull; (.*)<\/div>/)[1]
@@ -72,12 +75,13 @@ router.post("/", async (req, res) => {
         room = room.replace(/\./, "");
 
         return {
+          id: lesson.dataeventoid,
+          courseId: courseId,
           shortName: shortName,
           className: className,
           classType: classType,
           start: lesson.start,
           end: lesson.end,
-          id: lesson.dataeventoid,
           teachers: teachers,
           room: room,
           statusColor: lesson.color,
