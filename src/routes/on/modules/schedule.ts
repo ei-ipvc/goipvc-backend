@@ -20,11 +20,11 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  try {
-    const formData = new FormData();
-    formData.append("param_meuhorario_numutilizador", studentId);
-    formData.append("param_horarios_alunos", "horario_aluno");
+  const formData = new FormData();
+  formData.append("param_meuhorario_numutilizador", studentId);
+  formData.append("param_horarios_alunos", "horario_aluno");
 
+  try {
     const fetchSchedule = async (semester: string) => {
       formData.append("param_anoletivoA", "202425");
       formData.append("param_semestreA", semester);
@@ -35,7 +35,6 @@ router.post("/", async (req, res) => {
         {
           headers: {
             Cookie: token,
-            "User-Agent": "Mozilla/5.0 Chrome/99.0.0.0 Safari/537.36",
           },
         }
       );
@@ -76,7 +75,7 @@ router.post("/", async (req, res) => {
 
         return {
           id: lesson.dataeventoid,
-          courseId: courseId,
+          curricularUnitId: courseId,
           shortName: shortName,
           className: className,
           classType: classType,
