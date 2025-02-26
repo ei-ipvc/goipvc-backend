@@ -1,5 +1,6 @@
 import { Router } from "express";
 import classInfoRouter from "./modules/classInfo";
+import courseIdRouter from "./modules/courseId";
 import scheduleRouter from "./modules/schedule";
 import firstNameRouter from "./modules/firstName";
 
@@ -10,6 +11,7 @@ router.get("/", (_, res) => {
 });
 
 router.use("/class-info", classInfoRouter);
+router.use("/course-id", courseIdRouter);
 router.use("/schedule", scheduleRouter);
 router.use("/first-name", firstNameRouter);
 
