@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
         units.push(unit);
       }
 
-      if (unit.evaluationType === "-")
+      if (unit.evaluationType === "-") unit.evaluationType = null;
 
       if (unit.grade)
         unit.grade.push([
