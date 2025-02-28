@@ -1,20 +1,12 @@
 import { Router, Request, Response } from "express";
 import axios, { AxiosResponse } from "axios";
-import * as cheerio from "cheerio";
 
 const router = Router();
 
-router.post("/", async (req: Request, res: Response) => {
-  const courseId = req.body.courseId;
-  if (!courseId) {
-    res.status(400).send("Missing courseId");
-    return;
-  }
-
-  const classId = req.body.classId;
-  if (!classId) {
-    res.status(400).send("Missing classId");
-    return;
+export async function getClassInfo(courseId: number, classId: number) {
+  console.log(courseId, classId);
+  if (!courseId || !classId) {
+    throw new Error("Missing courseId or classId");
   }
 
   try {
@@ -22,18 +14,30 @@ router.post("/", async (req: Request, res: Response) => {
       `https://on.ipvc.pt/v1/puc.php?cd_curso=${courseId}&cd_discip=${classId}&lang=pt`
     );
 
-    const $ = cheerio.load(response.data);
+    const match = /ECTS:<\/b> (.*?)<\/br>/.exec(response.data);
+    const ects = match ? parseInt(match[1]) : null;
 
-    res.status(200).json(response.data);
+    return { ects: ects };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      res
-        .status(error.response ? error.response.status : 500)
-        .send(error.message);
+      throw new Error(error.message);
     } else {
       console.error(error);
-      res.status(500).send("An unexpected error occurred");
+      throw new Error("An unexpected error occurred");
     }
+  }
+}
+
+router.post("/", async (req: Request, res: Response) => {
+  const courseId = req.body.courseId;
+  const classId = req.body.classId;
+
+  try {
+    const classInfo = await getClassInfo(courseId, classId);
+    res.status(200).json(classInfo);
+  } catch (error) {
+    if (error instanceof Error) res.status(500).send(error.message);
+    else res.status(500).send("An unknown error occurred");
   }
 });
 
