@@ -4,7 +4,6 @@ import axios, { AxiosResponse } from "axios";
 const router = Router();
 
 export async function getClassInfo(courseId: number, classId: number) {
-  console.log(courseId, classId);
   if (!courseId || !classId) {
     throw new Error("Missing courseId or classId");
   }
