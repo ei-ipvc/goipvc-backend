@@ -83,9 +83,16 @@ router.post("/", async (req, res) => {
       const validUnits = course.curricularUnits.filter(
         (u) => u.highestGrade !== null
       );
-      const avg =
-        validUnits.reduce((acc, u) => acc + u.highestGrade!, 0) /
-        validUnits.length;
+
+      const { totalEcts, weightedSum } = validUnits.reduce(
+        (acc, u) => {
+          acc.totalEcts += u.ects;
+          acc.weightedSum += u.highestGrade! * u.ects;
+          return acc;
+        },
+        { totalEcts: 0, weightedSum: 0 }
+      );
+      const avg = weightedSum / totalEcts;
       course.avgGrade = isNaN(avg) ? 0 : parseFloat(avg.toFixed(2));
 
       course.curricularUnits.sort((a, b) =>
