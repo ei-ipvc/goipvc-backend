@@ -35,9 +35,11 @@ router.get("/", async (req, res) => {
       /\S+/g,
       (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
     );
-    const schoolName = pInfo[0];
+    const schoolName = pInfo[0].replace(
+      " do Instituto Politécnico de Viana do Castelo",
+      ""
+    );
     const schoolInitials = schoolName
-      .replace(" do Instituto Politécnico de Viana do Castelo", "")
       .trim()
       .split(" ")
       .map((word) => word[0])
