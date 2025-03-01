@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
       if (!unitsMap[0]) unitsMap[0] = { avgGrade: 0, curricularUnits: [] };
 
       const units = unitsMap[0].curricularUnits;
-      let unit = units.find((u) => u.id === item.CD_DISCIP);
+      let unit = units.find((unit) => unit.id === item.CD_DISCIP);
       const grade = parseInt(item.notaFinalCalcField);
 
       if (!item.turmasCalcField) continue;
@@ -81,13 +81,13 @@ router.post("/", async (req, res) => {
 
     const formattedUnits = Object.values(unitsMap).map((course) => {
       const validUnits = course.curricularUnits.filter(
-        (u) => u.highestGrade !== null
+        (unit) => unit.highestGrade !== null
       );
 
       const { totalEcts, weightedSum } = validUnits.reduce(
-        (acc, u) => {
-          acc.totalEcts += u.ects;
-          acc.weightedSum += u.highestGrade! * u.ects;
+        (acc, unit) => {
+          acc.totalEcts += unit.ects;
+          acc.weightedSum += unit.highestGrade! * unit.ects;
           return acc;
         },
         { totalEcts: 0, weightedSum: 0 }
