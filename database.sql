@@ -28,3 +28,19 @@ CREATE TABLE IF NOT EXISTS course_units (
 
   FOREIGN KEY (course_id) REFERENCES courses(id)
 );
+
+CREATE TABLE IF NOT EXISTS users (
+  username TEXT PRIMARY KEY,
+
+  custom_name VARCHAR(255),
+
+  theme VARCHAR(6),
+  color_scheme VARCHAR(6),
+  school_theme VARCHAR(4),
+
+  lesson_notifs INTEGER NOT NULL DEFAULT 10,
+  task_notifs INTEGER NOT NULL DEFAULT 2,
+
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT now(),
+  requests INTEGER NOT NULL DEFAULT 0
+);
