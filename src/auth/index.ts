@@ -12,6 +12,7 @@ router.post("/", async (req, res) => {
     res.status(400).send("Missing username or password");
     return;
   }
+  console.log(req.body);
 
   try {
     const tokens: any = {};

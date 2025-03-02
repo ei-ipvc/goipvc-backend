@@ -1,6 +1,8 @@
 import { Client } from "pg";
 import dotenv from "dotenv";
 import express, { Request, Response, NextFunction } from "express";
+import path from "path";
+
 import cookieParser from "cookie-parser";
 
 import authRouter from "./auth";
@@ -33,8 +35,6 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
     return;
   }
 
-  console.log("");
-
   next();
 });
 app.use(cookieParser());
@@ -51,6 +51,8 @@ app.use("/academicos", academicosRouter);
 app.use("/moodle", moodleRouter);
 app.use("/on", onRouter);
 app.use("/sas", sasRouter);
+
+app.use("/blueprints", express.static(path.join(__dirname, "blueprints")));
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
