@@ -111,7 +111,7 @@ router.post("/", async (req, res) => {
       return course;
     });
 
-    res.status(200).json(formattedUnits);
+    res.status(200).json(formattedUnits[0]);
   } catch (error) {
     const status =
       axios.isAxiosError(error) && error.response ? error.response.status : 500;
