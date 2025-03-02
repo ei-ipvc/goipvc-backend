@@ -1,6 +1,6 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import axios from "axios";
-import { getClassInfo } from "../../on/modules/classInfo";
+import { curricularUnit } from "../../on/modules/curricularUnit";
 
 interface CurricularUnit {
   id: number;
@@ -77,7 +77,7 @@ router.post("/", async (req, res) => {
       if (!unit.ects) {
         try {
           const courseId = parseInt(/^\d+/.exec(item.id)![0]);
-          const classInfo = await getClassInfo(courseId, unit.id);
+          const classInfo = await curricularUnit(courseId, unit.id);
           if (classInfo.ects) unit.ects = classInfo.ects;
         } catch (error) {
           console.error("Failed to fetch class info:", error);

@@ -4,7 +4,7 @@ import * as cheerio from "cheerio";
 
 const router = Router();
 
-export async function getClassInfo(courseId: number, classId: number) {
+export async function curricularUnit(courseId: number, classId: number) {
   if (!courseId || !classId) {
     throw new Error("Missing courseId or classId");
   }
@@ -57,7 +57,7 @@ router.post("/", async (req: Request, res: Response) => {
   const classId = req.body.classId;
 
   try {
-    const classInfo = await getClassInfo(courseId, classId);
+    const classInfo = await curricularUnit(courseId, classId);
     res.status(200).json(classInfo);
   } catch (error) {
     if (error instanceof Error) res.status(500).send(error.message);
