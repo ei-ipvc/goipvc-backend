@@ -8,7 +8,7 @@ interface CurricularUnit {
   year: number;
   semester: number;
   evaluationType: string | null;
-  grade: [number, string, string, string][] | null;
+  grade: [number, string, string | null, string][] | null;
   highestGrade: number | null;
   ects: number;
 }
@@ -19,6 +19,12 @@ interface Course {
 }
 
 const router = Router();
+
+const dateFormat = (date: string): string | null => {
+  if (date === "-") return null;
+  const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year}`;
+};
 
 router.post("/", async (req, res) => {
   const token = req.cookies.JSESSIONID;
@@ -61,7 +67,7 @@ router.post("/", async (req, res) => {
         unit.grade.push([
           grade,
           item.estadoCalcField,
-          item.dataFimInscricao,
+          dateFormat(item.dataFimInscricao) || null,
           item.anoLectivoCalcField,
         ]);
 
@@ -99,7 +105,7 @@ router.post("/", async (req, res) => {
         a.year !== b.year ? a.year - b.year : a.name.localeCompare(b.name)
       );
       course.curricularUnits.forEach((unit) =>
-        unit.grade?.sort((a, b) => (a[2] > b[2] ? -1 : 1))
+        unit.grade?.sort((a, b) => (a[2]! > b[2]! ? -1 : 1))
       );
 
       return course;
