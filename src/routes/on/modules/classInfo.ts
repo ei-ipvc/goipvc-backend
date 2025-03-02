@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import axios, { AxiosResponse } from "axios";
+import * as cheerio from "cheerio";
 
 const router = Router();
 
@@ -13,10 +14,34 @@ export async function getClassInfo(courseId: number, classId: number) {
       `https://on.ipvc.pt/v1/puc.php?cd_curso=${courseId}&cd_discip=${classId}&lang=pt`
     );
 
-    const match = /ECTS:<\/b> (.*?)<\/br>/.exec(response.data);
-    const ects = match ? parseInt(match[1]) : null;
+    const $ = cheerio.load(response.data);
 
-    return { ects: ects };
+    const getValue = (pattern: RegExp) => {
+      const match = response.data.match(pattern);
+      return match ? parseInt(match[1]) : null;
+    };
+    const year = getValue(/ANO:.+(\d+)/),
+      semester = getValue(/SEMESTRE:.+S(\d)/),
+      autonomousHours = getValue(/AUTÓNOMO:.+\s(\d+)/),
+      ects = getValue(/ECTS:.+\s(\d+)/);
+
+    const keys = [
+      { from: "resumo", to: "summary" },
+      { from: "objetivos", to: "objectives" },
+      { from: "conteudo", to: "courseContent" },
+      { from: "metodologias", to: "methodologies" },
+      { from: "avaliacao", to: "evaluation" },
+      { from: "bibliografia", to: "bibliography" },
+      { from: "bibliografia_comp", to: "bibliographyExtra" },
+    ];
+    const sections = Object.fromEntries(
+      keys.map(({ from, to }) => [
+        to,
+        $(`#${from} div div div :nth-child(2)`).text().trim(),
+      ])
+    );
+
+    return { year, semester, autonomousHours, ects, ...sections };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(error.message);

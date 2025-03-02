@@ -7,8 +7,7 @@ interface CurricularUnit {
   name: string;
   year: number;
   semester: number;
-  evaluationType: string | null;
-  grade: [number, string, string | null, string][] | null;
+  grade: [number, string, string, string | null, string][] | null;
   highestGrade: number | null;
   ects: number;
 }
@@ -53,7 +52,6 @@ router.post("/", async (req, res) => {
           name: item.DS_DISCIP,
           year: item.CD_A_S_CUR,
           semester: parseInt(item.CD_DURACAO.replace("S", "")),
-          evaluationType: item.dsAvaliaCalcField || null,
           grade: item.notaFinalCalcField ? [] : null,
           highestGrade: grade || null,
           ects: parseInt(item.ectsCalcField),
@@ -61,11 +59,13 @@ router.post("/", async (req, res) => {
         units.push(unit);
       }
 
-      if (unit.evaluationType === "-") unit.evaluationType = null;
+      let evaluationType = item.dsAvaliaCalcField || null;
+      if (evaluationType === "-") evaluationType = null;
 
       if (unit.grade)
         unit.grade.push([
           grade,
+          evaluationType,
           item.estadoCalcField,
           dateFormat(item.dataFimInscricao) || null,
           item.anoLectivoCalcField,
@@ -99,7 +99,7 @@ router.post("/", async (req, res) => {
         { totalEcts: 0, weightedSum: 0 }
       );
       const avg = weightedSum / totalEcts;
-      course.avgGrade = isNaN(avg) ? 0 : parseFloat(avg.toFixed(2));
+      course.avgGrade = parseFloat(avg.toFixed(2));
 
       course.curricularUnits.sort((a, b) =>
         a.year !== b.year ? a.year - b.year : a.name.localeCompare(b.name)
