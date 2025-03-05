@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import assignmentsRouter from "./modules/assignments";
+import attendanceRouter from "./modules/attendance";
 import curricularUnitsRouter from "./modules/curricularUnits";
 import lessonSummariesRouter from "./modules/lessonSummaries";
 
@@ -11,6 +12,7 @@ router.get("/", (_, res) => {
 });
 
 router.use("/assignments", assignmentsRouter);
+router.use("/attendance", attendanceRouter);
 router.use("/curricular-units", curricularUnitsRouter);
 router.use("/lesson-summaries", lessonSummariesRouter);
 
