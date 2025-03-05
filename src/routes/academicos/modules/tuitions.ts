@@ -1,17 +1,7 @@
 import { Router } from "express";
 import axios from "axios";
 import * as cheerio from "cheerio";
-
-interface Tuition {
-  desc: string;
-  dueDate: string;
-  // ref: string;
-  value: number;
-  paymentDate: string;
-  amountPaid: number;
-  debt: number;
-  fine: number;
-}
+import { Tuition } from "../../../models/tuition";
 
 const router = Router();
 
@@ -45,28 +35,18 @@ router.get("/", async (req, res) => {
     const rows = $("#simpletable > tbody > tr")
       .filter((_, elem) => !!$(elem).attr("class"))
       .map((_, row) => {
-        const [
-          ,
-          desc,
-          dueDate,
-          ref,
-          value,
-          paymentDate,
-          amountPaid,
-          debt,
-          fine,
-        ] = $(row)
-          .find("td")
-          .toArray()
-          .map((cell) =>
-            $(cell).text().trim().replace(/\n/g, "").replace(" Eur", "")
-          );
+        const [, desc, dueDate, , value, paymentDate, amountPaid, debt, fine] =
+          $(row)
+            .find("td")
+            .toArray()
+            .map((cell) =>
+              $(cell).text().trim().replace(/\n/g, "").replace(" Eur", "")
+            );
 
         if (!desc) return null; // skip empty rows
         return {
           desc,
           dueDate: dueDate.replace("(1)", ""),
-          //ref,
           value: parseFloat(value),
           paymentDate,
           amountPaid: parseFloat(amountPaid),

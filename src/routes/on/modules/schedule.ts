@@ -2,6 +2,7 @@ import { Router } from "express";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import JSON5 from "json5";
+import { Lesson } from "../../../models/lesson";
 
 const router = Router();
 
@@ -25,7 +26,7 @@ router.post("/", async (req, res) => {
   formData.append("param_horarios_alunos", "horario_aluno");
 
   try {
-    const fetchSchedule = async (semester: string) => {
+    const fetchSchedule = async (semester: string): Promise<Lesson[]> => {
       formData.append("param_anoletivoA", "202425");
       formData.append("param_semestreA", semester);
 
@@ -44,7 +45,7 @@ router.post("/", async (req, res) => {
           "modulos/atividadeletiva/calendar240/fullcalendar.css"
         )
       ) {
-        return null;
+        return [];
       }
 
       const $ = cheerio.load(response.data);
@@ -53,7 +54,7 @@ router.post("/", async (req, res) => {
       const eventsData = JSON5.parse(match![1]);
       // return res.status(200).json(eventsData);
 
-      return eventsData.map((lesson: any) => {
+      return eventsData.map((lesson: any): Lesson => {
         const courseId = parseInt(lesson.datauc.match(/^(\d+)/)[1]);
 
         let [, shortName = "", classType = "", room = ""] =
