@@ -1,4 +1,5 @@
 import { Router } from "express";
+import checkOnAuth from "../../../middleware/on";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import JSON5 from "json5";
@@ -6,7 +7,7 @@ import { Lesson } from "../../../models/lesson";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.post("/", checkOnAuth, async (req, res) => {
   const token = Object.entries(req.cookies)
     .map(([key, value]) => `${key}=${value}`)
     .join("; "); // PHPSESSID=...; ONIPVC=...
@@ -40,19 +41,10 @@ router.post("/", async (req, res) => {
         }
       );
 
-      if (
-        !response.data.includes(
-          "modulos/atividadeletiva/calendar240/fullcalendar.css"
-        )
-      ) {
-        return [];
-      }
-
       const $ = cheerio.load(response.data);
       const script = $("script").eq(8).html()!;
       const match = script.match(/events_data\s*=\s*(.+);/);
       const eventsData = JSON5.parse(match![1]);
-      // return res.status(200).json(eventsData);
 
       return eventsData.map((lesson: any): Lesson => {
         const courseId = parseInt(lesson.datauc.match(/^(\d+)/)[1]);
@@ -89,16 +81,17 @@ router.post("/", async (req, res) => {
       });
     };
 
-    const s1 = await fetchSchedule("S1");
-    const s2 = await fetchSchedule("S2");
+    const [s1, s2] = await Promise.allSettled([
+      fetchSchedule("S1"),
+      fetchSchedule("S2"),
+    ]);
 
-    if (s1 === null && s2 === null) {
-      res.status(401).send("Unauthorized");
-      return;
-    }
+    const lessons = [
+      ...(s1.status === "fulfilled" ? s1.value : []),
+      ...(s2.status === "fulfilled" ? s2.value : []),
+    ];
 
-    const all = [...s1, ...s2];
-    res.status(200).json(all);
+    res.status(200).json(lessons);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
