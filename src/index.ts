@@ -28,7 +28,10 @@ const port = 3000;
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   console.log(`${req.method} ${req.url}`);
-  console.log(req.headers.cookie);
+  if (req.headers.cookie) {
+    console.log(req.headers.cookie);
+    console.log();
+  }
 
   if (req.headers.cookie && req.headers.cookie.includes("string")) {
     res.status(401).send("Unauthorized");

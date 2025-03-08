@@ -26,8 +26,8 @@ router.post("/", async (req, res) => {
       );
     if (moodle)
       promises.push(
-        moodleStrategy(username, password).then(([cookie, token]) => {
-          tokens.moodle = { cookie, token };
+        moodleStrategy(username, password).then(([cookie, sesskey]) => {
+          tokens.moodle = { cookie, sesskey };
         })
       );
     if (on)

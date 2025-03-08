@@ -15,29 +15,28 @@ export const moodleStrategy = async (username: string, password: string) => {
         ?.split("Secure, ")
         .find((c) => c.startsWith("MoodleSession")) || "";
 
-    const [loginRes, tokenRes] = await Promise.all([
-      fetch(`${loginURL}/index.php`, {
-        method: "POST",
-        headers: { cookie: moodleSessionCookie },
-        body: form,
-        redirect: "manual",
-        credentials: "include",
-      }),
-      fetch(
-        `${loginURL}/token.php?username=${username}&password=${encodeURIComponent(
-          password
-        )}&service=moodle_mobile_app`
-      ),
-    ]);
-
-    const cookies = loginRes.headers
+    const loginRes = await fetch(`${loginURL}/index.php`, {
+      method: "POST",
+      headers: { cookie: moodleSessionCookie },
+      body: form,
+      redirect: "manual",
+      credentials: "include",
+    });
+    const moodleSession = loginRes.headers
       .get("set-cookie")
       ?.split("Secure, ")
-      .find((c) => c.startsWith("MoodleSession"));
+      .find((c) => c.startsWith("MoodleSession"))!
+      .split(";")[0];
 
-    const token = await tokenRes.json();
+    const html = await fetch(
+      "https://elearning.ipvc.pt/ipvc2024/my/courses.php",
+      {
+        headers: { cookie: moodleSession! },
+      }
+    ).then((res) => res.text());
+    const sesskey = html.match(/sesskey":"([^"]+)/)![1];
 
-    return [cookies!.split(";")[0], token.token];
+    return [moodleSession, sesskey];
   } catch (error) {
     throw new Error(
       error instanceof Error ? error.message : "An unknown error occurred"
