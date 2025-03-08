@@ -4,47 +4,36 @@ import axios, { AxiosResponse } from "axios";
 const router = Router();
 
 router.post("/", async (req: Request, res: Response) => {
-  const token = req.body.token;
-  if (!token) {
-    res.status(400).send("Missing token");
-    return;
-  }
+  const token = req.cookies.MoodleSession;
+  const sesskey = req.body.sesskey;
+  if (!token || !sesskey) res.status(400).send("Missing token or sesskey");
 
   try {
-    const response: AxiosResponse = await axios.get(
-      `https://elearning.ipvc.pt/ipvc2024/webservice/rest/server.php`,
+    const response: AxiosResponse = await axios.post(
+      `https://elearning.ipvc.pt/ipvc2024/lib/ajax/service.php?sesskey=${sesskey}&info=core_calendar_get_action_events_by_timesort`,
+      [
+        {
+          methodname: "core_calendar_get_action_events_by_timesort",
+          args: {
+            limittononsuspendedevents: true,
+          },
+        },
+      ],
       {
-        params: {
-          wstoken: token,
-          wsfunction: "mod_assign_get_assignments",
-          moodlewsrestformat: "json",
+        headers: {
+          Cookie: `MoodleSession=${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
-    if (response.data.errorcode) {
+    if (response.data[0].error) {
       res.status(401).send("Unauthorized");
       return;
     }
 
-    /*
-    const assignments = response.data.courses.flatMap(
-      (course: any) => course.assignments
-    );
-    */
-
-    const assignments = response.data.courses.flatMap((course: any) =>
-      course.assignments.map((assignment: any) => ({
-        id: assignment.id,
-        courseId: assignment.course,
-        name: assignment.name,
-        dueDate: assignment.duedate,
-        modDate: assignment.timemodified,
-        complete: assignment.completionsubmit,
-      }))
-    );
-
-    res.status(response.status).json(assignments);
+    const data = response.data[0].data["events"];
+    res.status(response.status).json(data);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       res
