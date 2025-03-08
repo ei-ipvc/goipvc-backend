@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import client from "../../..";
 import axios, { AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 
@@ -16,24 +17,23 @@ interface Summary {
 const router = Router();
 
 router.post("/", async (req: Request, res: Response) => {
-  const token = req.cookies.MoodleSession;
-  if (!token) {
-    res.status(400).send("Missing token");
-    return;
-  }
+  const cookie = req.cookies.MoodleSession;
+  const curricularUnitId = req.body.curricularUnitId;
+  if (!cookie || !curricularUnitId)
+    res.status(400).send("Missing cookie or curricularUnitId");
 
-  const classId = req.body.classId;
-  if (!classId) {
-    res.status(400).send("Missing Moodle classId");
-    return;
-  }
+  const moodleClassId = (
+    await client.query("SELECT moodle_id FROM curricular_units WHERE id = $1", [
+      curricularUnitId,
+    ])
+  ).rows[0].moodle_id;
 
   try {
     const response: AxiosResponse = await axios.get(
-      `https://elearning.ipvc.pt/ipvc2024/course/view.php?id=${classId}`,
+      `https://elearning.ipvc.pt/ipvc2024/course/view.php?id=${moodleClassId}`,
       {
         headers: {
-          Cookie: `MoodleSession=${token};`,
+          Cookie: `MoodleSession=${cookie};`,
         },
       }
     );

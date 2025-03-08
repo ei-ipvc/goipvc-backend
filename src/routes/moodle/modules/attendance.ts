@@ -1,4 +1,5 @@
 import { Router } from "express";
+import client from "../../..";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
@@ -14,15 +15,22 @@ interface Attendance {
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const token = req.cookies.MoodleSession;
-  const classId = req.body.classId;
-  if (!token || !classId) res.status(400).send("Missing token or classId");
+  const cookie = req.cookies.MoodleSession;
+  const curricularUnitId = req.body.curricularUnitId;
+  if (!cookie || !curricularUnitId)
+    res.status(400).send("Missing cookie or curricularUnitId");
+
+  const moodleClassId = (
+    await client.query("SELECT moodle_id FROM curricular_units WHERE id = $1", [
+      curricularUnitId,
+    ])
+  ).rows[0].moodle_id;
 
   try {
     const { data } = await axios.get(
-      `https://elearning.ipvc.pt/ipvc2024/course/view.php?id=${classId}`,
+      `https://elearning.ipvc.pt/ipvc2024/course/view.php?id=${moodleClassId}`,
       {
-        headers: { Cookie: `MoodleSession=${token};` },
+        headers: { Cookie: `MoodleSession=${cookie};` },
       }
     );
 
