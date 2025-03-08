@@ -23,18 +23,20 @@ export const saveCurricularUnits = async (cookie: string, sesskey: string) => {
       }
     );
 
-    const data = response.data[0].data.courses;
-    data.forEach((unit: any) => {
-      const id = unit.idnumber.match(/\d+$/)?.[0];
-      const courseId = unit.idnumber.match(/^\d+/)?.[0];
-      const moodleId = unit.id;
+    if (!response.data[0].error) {
+      const data = response.data[0].data.courses;
+      data.forEach((unit: any) => {
+        const id = unit.idnumber.match(/\d+$/)?.[0];
+        const courseId = unit.idnumber.match(/^\d+/)?.[0];
+        const moodleId = unit.id;
 
-      if (id != 0 && courseId != 0)
-        client.query(
-          "INSERT INTO curricular_units (id, course_id, moodle_id) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET course_id = $2, moodle_id = $3",
-          [id, courseId, moodleId]
-        );
-    });
+        if (id != 0 && courseId != 0)
+          client.query(
+            "INSERT INTO curricular_units (id, course_id, moodle_id) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET course_id = $2, moodle_id = $3",
+            [id, courseId, moodleId]
+          );
+      });
+    }
   } catch (error) {
     console.error("Failed to save curricular units:", error);
   }
