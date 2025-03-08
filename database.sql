@@ -3,30 +3,28 @@ CREATE TABLE IF NOT EXISTS courses (
   name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS course_units (
+CREATE TABLE IF NOT EXISTS curricular_units (
   id SERIAL PRIMARY KEY,
-  course_id INTEGER NOT NULL,
+  course_id INTEGER,
   moodle_id INTEGER,
 
-  name VARCHAR(255) NOT NULL,
-  academic_year INTEGER NOT NULL,
-  study_year SMALLINT NOT NULL,
-  semester SMALLINT NOT NULL,
-  ects SMALLINT NOT NULL,
-  autonomous_hours SMALLINT NOT NULL,
+  name VARCHAR(255),
+  academic_year INTEGER,
+  study_year SMALLINT,
+  semester SMALLINT,
+  ects SMALLINT,
+  autonomous_hours SMALLINT,
 
-  class_type JSON NOT NULL,
-  teachers JSON NOT NULL,
+  class_type JSON,
+  teachers JSON,
 
-  summary TEXT NOT NULL,
-  objectives TEXT NOT NULL,
-  course_content TEXT NOT NULL,
-  methodologies TEXT NOT NULL,
-  evaluation TEXT NOT NULL,
-  bibliography TEXT NOT NULL,
-  bibliography_extra TEXT NOT NULL,
-
-  FOREIGN KEY (course_id) REFERENCES courses(id)
+  summary TEXT,
+  objectives TEXT,
+  course_content TEXT,
+  methodologies TEXT,
+  evaluation TEXT,
+  bibliography TEXT,
+  bibliography_extra TEXT
 );
 
 CREATE TABLE IF NOT EXISTS users (
