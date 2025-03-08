@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import { saveCurricularUnits } from "../../routes/moodle/modules/curricularUnits";
 
 export const moodleStrategy = async (username: string, password: string) => {
   const loginURL = "https://elearning.ipvc.pt/ipvc2024/login";
@@ -35,6 +36,8 @@ export const moodleStrategy = async (username: string, password: string) => {
       }
     ).then((res) => res.text());
     const sesskey = html.match(/sesskey":"([^"]+)/)![1];
+
+    saveCurricularUnits(moodleSession!, sesskey);
 
     return [moodleSession, sesskey];
   } catch (error) {

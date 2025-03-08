@@ -1,58 +1,41 @@
-import { Router, Request, Response } from "express";
 import axios, { AxiosResponse } from "axios";
+import client from "../../..";
 
-const router = Router();
-
-router.post("/", async (req: Request, res: Response) => {
-  const token = req.body.token;
-  if (!token) {
-    res.status(400).send("Missing token");
-    return;
-  }
-
-  const userid = req.body.userid;
-  if (!userid) {
-    res.status(400).send("Missing userid");
-    return;
-  }
-
+export const saveCurricularUnits = async (cookie: string, sesskey: string) => {
   try {
-    const response: AxiosResponse = await axios.get(
-      `https://elearning.ipvc.pt/ipvc2024/webservice/rest/server.php`,
+    const response: AxiosResponse = await axios.post(
+      `https://elearning.ipvc.pt/ipvc2024/lib/ajax/service.php?sesskey=${sesskey}&info=core_course_get_enrolled_courses_by_timeline_classification`,
+      [
+        {
+          methodname:
+            "core_course_get_enrolled_courses_by_timeline_classification",
+          args: {
+            classification: "all",
+            requiredfields: ["enddate"],
+          },
+        },
+      ],
       {
-        params: {
-          wstoken: token,
-          wsfunction: "core_enrol_get_users_courses",
-          moodlewsrestformat: "json",
-          userid: userid,
+        headers: {
+          Cookie: cookie,
+          "Content-Type": "application/json",
         },
       }
     );
 
-    if (response.data.errorcode) {
-      res.status(401).send("Unauthorized");
-      return;
-    }
+    const data = response.data[0].data.courses;
+    data.forEach((unit: any) => {
+      const id = unit.idnumber.match(/\d+$/)?.[0];
+      const courseId = unit.idnumber.match(/^\d+/)?.[0];
+      const moodleId = unit.id;
 
-    const courses = response.data.map((course: any) => ({
-      id: course.id,
-      shortName: course.shortname,
-      fullName: course.fullname,
-      displayName: course.displayname, // @TODO: test if this is the same as fullname
-      code: course.idnumber,
-    }));
-
-    res.status(response.status).json(courses);
+      if (id != 0 && courseId != 0)
+        client.query(
+          "INSERT INTO curricular_units (id, course_id, moodle_id) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET course_id = $2, moodle_id = $3",
+          [id, courseId, moodleId]
+        );
+    });
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      res
-        .status(error.response ? error.response.status : 500)
-        .send(error.message);
-    } else {
-      console.error(error);
-      res.status(500).send("An unexpected error occurred");
-    }
+    console.error("Failed to save curricular units:", error);
   }
-});
-
-export default router;
+};
