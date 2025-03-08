@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { response, Router } from "express";
 import axios from "axios";
 import { curricularUnit } from "../../on/modules/curricularUnit";
 
@@ -34,7 +34,10 @@ router.post("/", async (req, res) => {
       "https://academicos.ipvc.pt/netpa/ajax/consultanotasaluno/inscricoes",
       { headers: { Cookie: `JSESSIONID=${token}` } }
     );
-    if (!response.data.success) res.status(401).send("Unauthorized");
+    if (!response.data.success) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
 
     const unitsMap: Record<number, Course> = {};
     for (const item of response.data.result) {
