@@ -3,9 +3,9 @@ import axios, { AxiosResponse } from "axios";
 
 const router = Router();
 
-router.post("/", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
+  const sesskey = req.headers.authorization;
   const token = req.cookies.MoodleSession;
-  const sesskey = req.body.sesskey;
   if (!token || !sesskey) res.status(400).send("Missing token or sesskey");
 
   try {
