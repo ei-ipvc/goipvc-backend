@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
       { headers: { Cookie: `JSESSIONID=${token}` } }
     );
     if (!response.data.success) {
-      res.status(401).send("Unauthorized");
+      res.status(401).send();
       return;
     }
 

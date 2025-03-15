@@ -18,7 +18,7 @@ const checkOnAuth = async (req: Request, res: Response, next: NextFunction) => {
       err.response.status === 302 &&
       err.response.headers.location.includes("index.php")
     ) {
-      res.status(401).send("Unauthorized");
+      res.status(401).send();
     } else {
       console.error(err);
       res.status(500).send("An error occurred while checking the session");

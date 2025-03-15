@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
     const $ = cheerio.load(response.data);
 
     if (response.data.includes("title-card-login")) {
-      res.status(401).send("Unauthorized");
+      res.status(401).send();
       return;
     }
 

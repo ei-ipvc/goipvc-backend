@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
     });
 
     if (response.data.includes("Ext.getCmp('loginRegister').showLogin()")) {
-      res.status(401).send("Unauthorized");
+      res.status(401).send();
       return;
     }
 

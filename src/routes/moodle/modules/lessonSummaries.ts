@@ -39,7 +39,7 @@ router.post("/", async (req: Request, res: Response) => {
     );
 
     if (response.data.includes("loginform")) {
-      res.status(401).send("Unauthorized");
+      res.status(401).send();
       return;
     }
 

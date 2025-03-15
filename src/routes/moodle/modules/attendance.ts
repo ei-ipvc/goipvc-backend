@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
       }
     );
 
-    if (data.includes("loginform")) res.status(401).send("Unauthorized");
+    if (data.includes("loginform")) res.status(401).send();
 
     const $ = cheerio.load(data);
     const attendance: Attendance[] = $("#ipvc_presencas table tbody")

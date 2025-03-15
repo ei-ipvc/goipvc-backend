@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
     const $ = cheerio.load(html);
 
     if (html.includes("NO_USER_LOGGED")) {
-      res.status(401).send("Unauthorized");
+      res.status(401).send();
       return;
     }
 

@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message.includes("401")) {
-        res.status(401).send("Unauthorized");
+        res.status(401).send();
       } else {
         res.status(500).send(error.message);
       }

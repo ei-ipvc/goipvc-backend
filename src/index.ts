@@ -34,7 +34,7 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
   }
 
   if (req.headers.cookie && req.headers.cookie.includes("string")) {
-    res.status(401).send("Unauthorized");
+    res.status(401).send();
     return;
   }
 

@@ -28,7 +28,7 @@ router.get("/", async (req: Request, res: Response) => {
     );
 
     if (response.data[0].error) {
-      res.status(401).send("Unauthorized");
+      res.status(401).send();
       return;
     }
 
