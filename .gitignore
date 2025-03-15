@@ -133,3 +133,6 @@ dist
 
 # Blueprints
 /src/blueprints
+
+# Database insertion files
+/db-seeds/

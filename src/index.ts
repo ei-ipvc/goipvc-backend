@@ -6,6 +6,7 @@ import path from "path";
 import cookieParser from "cookie-parser";
 
 import authRouter from "./auth";
+import dbRouter from "./database";
 import academicosRouter from "./routes/academicos/";
 import moodleRouter from "./routes/moodle/";
 import onRouter from "./routes/on/";
@@ -49,6 +50,7 @@ app.get("/", (_, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/database", dbRouter);
 
 app.use("/academicos", academicosRouter);
 app.use("/moodle", moodleRouter);
