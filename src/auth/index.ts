@@ -42,7 +42,6 @@ router.post("/", async (req, res) => {
           tokens.sas = { token, refreshToken };
         })
       );
-
     await Promise.all(promises);
 
     if (Object.keys(tokens).length === 0) {
@@ -53,7 +52,11 @@ router.post("/", async (req, res) => {
     res.status(200).json(tokens);
   } catch (error) {
     if (error instanceof Error) {
-      res.status(500).send(error.message);
+      if (error.message.includes("401")) {
+        res.status(401).send("Unauthorized");
+      } else {
+        res.status(500).send(error.message);
+      }
     } else {
       res.status(500).send("An unknown error occurred");
     }

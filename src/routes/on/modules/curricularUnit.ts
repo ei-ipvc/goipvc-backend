@@ -42,7 +42,6 @@ export async function curricularUnit(courseId: number, classId: number) {
       ])
     );
 
-    console.log("updating curricular unit", classId);
     await client.query(
       `INSERT INTO curricular_units (id, course_id, academic_year, study_year, semester, ects, autonomous_hours, summary, objectives, course_content, methodologies, evaluation, bibliography, bibliography_extra) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) ON CONFLICT (id) DO UPDATE SET course_id = $2, academic_year = $3, study_year = $4, semester = $5, ects = $6, autonomous_hours = $7, summary = $8, objectives = $9, course_content = $10, methodologies = $11, evaluation = $12, bibliography = $13, bibliography_extra = $14`,
       [
