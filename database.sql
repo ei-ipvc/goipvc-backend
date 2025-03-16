@@ -40,9 +40,11 @@ CREATE TABLE IF NOT EXISTS curricular_unit_class_types (
 );
 
 CREATE TABLE IF NOT EXISTS curricular_unit_teachers (
-  id INTEGER PRIMARY KEY,
+  id INTEGER,
   teacher_id INTEGER,
-  responsible BOOLEAN NOT NULL DEFAULT FALSE
+  responsible BOOLEAN NOT NULL DEFAULT FALSE,
+
+  PRIMARY KEY (id, teacher_id)
 );
 
 CREATE TABLE IF NOT EXISTS users (
