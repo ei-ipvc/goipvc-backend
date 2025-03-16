@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS courses (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL
+  name jsonb NOT NULL,
+  type jsonb NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS teachers (
@@ -14,23 +15,34 @@ CREATE TABLE IF NOT EXISTS curricular_units (
   course_id INTEGER,
   moodle_id INTEGER,
 
-  name VARCHAR(255),
+  name jsonb,
   academic_year INTEGER,
   study_year SMALLINT,
   semester SMALLINT,
   ects SMALLINT,
   autonomous_hours SMALLINT,
 
-  class_type JSON,
-  teachers JSON,
+  summary jsonb,
+  objectives jsonb,
+  content jsonb,
+  teach_methods jsonb,
+  evaluation jsonb,
+  main_biblio jsonb,
+  comp_biblio jsonb,
 
-  summary TEXT,
-  objectives TEXT,
-  course_content TEXT,
-  methodologies TEXT,
-  evaluation TEXT,
-  bibliography TEXT,
-  bibliography_extra TEXT
+  FOREIGN KEY (course_id) REFERENCES courses(id)
+);
+
+CREATE TABLE IF NOT EXISTS curricular_unit_class_types (
+  id INTEGER PRIMARY KEY,
+  class_type JSON,
+  hours JSON
+);
+
+CREATE TABLE IF NOT EXISTS curricular_unit_teachers (
+  id INTEGER PRIMARY KEY,
+  teacher_id INTEGER,
+  responsible BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -43,8 +55,5 @@ CREATE TABLE IF NOT EXISTS users (
   school_theme VARCHAR(4),
 
   lesson_notifs INTEGER NOT NULL DEFAULT 10,
-  task_notifs INTEGER NOT NULL DEFAULT 2,
-
-  last_seen TIMESTAMPTZ NOT NULL DEFAULT now(),
-  requests INTEGER NOT NULL DEFAULT 0
+  task_notifs INTEGER NOT NULL DEFAULT 2
 );
