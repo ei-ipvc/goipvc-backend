@@ -33,7 +33,11 @@ const locFields = {
   },
 };
 
-const parseTeachers = async (str: string, classId: number) => {
+const parseTeachers = async (
+  str: string,
+  classId: number,
+  responsible: boolean = false
+) => {
   // extract teacher names
   const teachersMatch = str.replace(/.+> /, "").match(/.+?\(/g);
   if (!teachersMatch) return [];
@@ -55,20 +59,19 @@ const parseTeachers = async (str: string, classId: number) => {
   );
 
   // insert teachers into curricular_unit_teachers table
-  for (const teacher of teachers) {
-    const responsible = teachers.length === 1;
-    await client.query(
-      `INSERT INTO curricular_unit_teachers (id, teacher_id, responsible)
+  for (const teacher of teachers)
+    if (teacherData[teacher])
+      await client.query(
+        `INSERT INTO curricular_unit_teachers (id, teacher_id, responsible)
       VALUES ($1, $2, $3)
       ON CONFLICT (id, teacher_id) DO NOTHING`,
-      [classId, teacherData[teacher].id, responsible]
-    );
-  }
+        [classId, teacherData[teacher].id, responsible]
+      );
 
   // return teacher data
   return teachers.map((name) => ({
     name,
-    email: teacherData[name].email,
+    email: teacherData[name] ? teacherData[name].email : null,
   }));
 };
 
@@ -111,7 +114,8 @@ export async function curricularUnit(
     const fields = locFields[lang];
     const responsible = await parseTeachers(
         response.data.match(fields.responsible)[0],
-        classId
+        classId,
+        true
       ),
       otherTeachers = await parseTeachers(
         response.data.match(fields.otherTeachers)[0],
