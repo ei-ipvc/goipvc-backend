@@ -35,10 +35,9 @@ const locFields = {
 
 const parseTeachers = async (str: string, classId: number) => {
   // extract teacher names
-  const teachers = str
-    .replace(/.+> /, "")
-    .match(/.+?\(/g)!
-    .map((t) => t.slice(0, -1));
+  const teachersMatch = str.replace(/.+> /, "").match(/.+?\(/g);
+  if (!teachersMatch) return [];
+  const teachers = teachersMatch.map((t) => t.slice(0, -1));
 
   // query to get id, name, and email from the teachers
   const query = `SELECT id, name, email FROM teachers WHERE name IN (${teachers
