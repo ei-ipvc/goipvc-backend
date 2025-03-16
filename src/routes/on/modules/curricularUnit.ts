@@ -2,38 +2,81 @@ import { Router, Request, Response } from "express";
 import axios, { AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import client from "../../..";
+import { CurricularUnit } from "../../../models/curricularUnit";
 
 const router = Router();
 
-export async function curricularUnit(courseId: number, classId: number) {
+const locFields = {
+  en: {
+    courseName: /COURSE UNIT:.+?> (.*)</,
+    courseType: /CYCLE:.+?> (.*)</,
+
+    year: /YEAR:.+?(\d+)/,
+    semester: /SEMESTER:.+?S(\d)/,
+    autonomousHours: /AUTONOMOUS WORK:.+?\s(\d+)/,
+  },
+  pt: {
+    courseName: /CURSO:.+?> (.*)</,
+    courseType: /CICLO:.+?> (.*)</,
+
+    year: /ANO:.+?(\d+)/,
+    semester: /SEMESTRE:.+?S(\d)/,
+    autonomousHours: /AUTÓNOMO:.+?\s(\d+)/,
+  },
+};
+
+export async function curricularUnit(
+  courseId: number,
+  classId: number,
+  lang: "en" | "pt" = "pt"
+) {
   if (!courseId || !classId) {
     throw new Error("Missing courseId or classId");
   }
 
   try {
     const response: AxiosResponse = await axios.get(
-      `https://on.ipvc.pt/v1/puc.php?cd_curso=${courseId}&cd_discip=${classId}&lang=pt`
+      `https://on.ipvc.pt/v1/puc.php?cd_curso=${courseId}&cd_discip=${classId}&lang=${lang}`
     );
 
     const $ = cheerio.load(response.data);
+
+    const shiftsElem = $(
+      "div.col-lg-6:nth-child(2) table tbody tr:nth-child(2)"
+    );
+    const [shiftTypes, shiftHours] = [1, 2].map((col) =>
+      shiftsElem
+        .find(`td:nth-child(${col})`)
+        .html()!
+        .trim()
+        .split("<br>")
+        .filter(Boolean)
+    );
+    const shifts = shiftTypes.map((type, i) => ({
+      type: type.trim(),
+      hours: parseInt(shiftHours[i].trim(), 10),
+    }));
 
     const getValue = (pattern: RegExp) => {
       const match = response.data.match(pattern);
       return match ? parseInt(match[1]) : null;
     };
-    const year = getValue(/ANO:.+(\d+)/),
-      semester = getValue(/SEMESTRE:.+S(\d)/),
-      autonomousHours = getValue(/AUTÓNOMO:.+\s(\d+)/),
+    const fields = locFields[lang];
+    const courseName = response.data.match(fields.courseName)[1],
+      courseType = response.data.match(fields.courseType)[1],
+      year = getValue(fields.year),
+      semester = getValue(fields.semester),
+      autonomousHours = getValue(fields.autonomousHours),
       ects = getValue(/ECTS:.+\s(\d+)/);
 
     const keys = [
       { from: "resumo", to: "summary" },
       { from: "objetivos", to: "objectives" },
-      { from: "conteudo", to: "courseContent" },
-      { from: "metodologias", to: "methodologies" },
+      { from: "conteudo", to: "programContent" },
+      { from: "metodologias", to: "teachMethods" },
       { from: "avaliacao", to: "evaluation" },
-      { from: "bibliografia", to: "bibliography" },
-      { from: "bibliografia_comp", to: "bibliographyExtra" },
+      { from: "bibliografia", to: "mainBiblio" },
+      { from: "bibliografia_comp", to: "compBiblio" },
     ];
     const sections = Object.fromEntries(
       keys.map(({ from, to }) => [
@@ -42,32 +85,78 @@ export async function curricularUnit(courseId: number, classId: number) {
       ])
     );
 
+    lang = lang.toLowerCase() as "en" | "pt";
     await client.query(
-      `INSERT INTO curricular_units (id, course_id, academic_year, study_year, semester, ects, autonomous_hours, summary, objectives, course_content, methodologies, evaluation, bibliography, bibliography_extra) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) ON CONFLICT (id) DO UPDATE SET course_id = $2, academic_year = $3, study_year = $4, semester = $5, ects = $6, autonomous_hours = $7, summary = $8, objectives = $9, course_content = $10, methodologies = $11, evaluation = $12, bibliography = $13, bibliography_extra = $14`,
+      `INSERT INTO courses (id, name, type) 
+      VALUES ($1, $2, $3) 
+      ON CONFLICT (id) DO UPDATE 
+      SET name = courses.name || $2::jsonb,
+      type = courses.type || $3::jsonb`,
+      [
+        courseId,
+        JSON.stringify({ [`name_${lang}`]: courseName }),
+        JSON.stringify({ [`type_${lang}`]: courseType }),
+      ]
+    );
+    await client.query(
+      `INSERT INTO curricular_units (id, course_id, name, study_year, semester, ects, autonomous_hours, summary, objectives, content, teach_methods, evaluation, main_biblio, comp_biblio)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      ON CONFLICT (id) DO UPDATE
+      SET course_id = $2,
+      name = curricular_units.name || $3::jsonb,
+      study_year = $4,
+      semester = $5,
+      ects = $6,
+      autonomous_hours = $7,
+      summary = curricular_units.summary || $8::jsonb,
+      objectives = curricular_units.objectives || $9::jsonb,
+      content = curricular_units.content || $10::jsonb,
+      teach_methods = curricular_units.teach_methods || $11::jsonb,
+      evaluation = curricular_units.evaluation || $12::jsonb,
+      main_biblio = curricular_units.main_biblio || $13::jsonb,
+      comp_biblio = curricular_units.comp_biblio || $14::jsonb`,
       [
         classId,
         courseId,
-        year,
+        JSON.stringify({ [`name_${lang}`]: courseName }),
         year,
         semester,
         ects,
         autonomousHours,
-        sections.summary,
-        sections.objectives,
-        sections.courseContent,
-        sections.methodologies,
-        sections.evaluation,
-        sections.bibliography,
-        sections.bibliographyExtra,
+        JSON.stringify({ [`summary_${lang}`]: sections.summary }),
+        JSON.stringify({ [`objectives_${lang}`]: sections.objectives }),
+        JSON.stringify({
+          [`content_${lang}`]: sections.programContent,
+        }),
+        JSON.stringify({ [`teach_methods_${lang}`]: sections.teachMethods }),
+        JSON.stringify({ [`evaluation_${lang}`]: sections.evaluation }),
+        JSON.stringify({ [`main_biblio_${lang}`]: sections.mainBiblio }),
+        JSON.stringify({ [`comp_biblio_${lang}`]: sections.compBiblio }),
       ]
     );
+    await client.query(
+      `INSERT INTO curricular_unit_class_types (id, class_type, hours)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (id) DO UPDATE
+      SET class_type = $2,
+      hours = $3`,
+      [classId, JSON.stringify(shiftTypes), JSON.stringify(shiftHours)]
+    );
 
-    return { year, semester, autonomousHours, ects, ...sections };
+    return {
+      studyYear: year,
+      semester: semester,
+      ects: ects,
+      autonomousHours: autonomousHours,
+      ...sections,
+      classType: shifts,
+      teachers: [],
+    } as Partial<CurricularUnit>;
   } catch (error) {
+    console.error(error);
     if (axios.isAxiosError(error)) {
       throw new Error(error.message);
     } else {
-      console.error(error);
       throw new Error("An unexpected error occurred");
     }
   }
@@ -76,13 +165,13 @@ export async function curricularUnit(courseId: number, classId: number) {
 router.post("/", async (req: Request, res: Response) => {
   const courseId = req.body.courseId;
   const classId = req.body.classId;
+  const lang = req.body.lang;
 
   try {
-    const classInfo = await curricularUnit(courseId, classId);
+    const classInfo = await curricularUnit(courseId, classId, lang);
     res.status(200).json(classInfo);
   } catch (error) {
-    if (error instanceof Error) res.status(500).send(error.message);
-    else res.status(500).send("An unknown error occurred");
+    res.status(500).send(error);
   }
 });
 
