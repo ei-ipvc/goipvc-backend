@@ -25,14 +25,14 @@ const dateFormat = (date: string): string | null => {
   return `${day}/${month}/${year}`;
 };
 
-router.post("/", async (req, res) => {
-  const token = req.cookies.JSESSIONID;
+router.get("/", async (req, res) => {
+  const token = req.headers["x-auth-academicos"];
   if (!token) res.status(400).send("Missing token");
 
   try {
     const response = await axios.get(
       "https://academicos.ipvc.pt/netpa/ajax/consultanotasaluno/inscricoes",
-      { headers: { Cookie: `JSESSIONID=${token}` } }
+      { headers: { Cookie: token } }
     );
     if (!response.data.success) {
       res.status(401).send();

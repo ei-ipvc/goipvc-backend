@@ -6,7 +6,8 @@ import { Tuition } from "../../../models/tuition";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const token = req.cookies.JSESSIONID;
+  const token = req.headers["x-auth-academicos"];
+  console.log(token);
   if (!token) {
     res.status(400).send("Missing token");
     return;
@@ -17,7 +18,7 @@ router.get("/", async (req, res) => {
       "https://academicos.ipvc.pt/netpa/DIFTasks?_AP_=9&_MD_=1&_SR_=173&_ST_=1",
       {
         headers: {
-          Cookie: `JSESSIONID=${token}`,
+          Cookie: token,
           "User-Agent": "Mozilla/5.0 Chrome/99.0.0.0 Safari/537.36",
         },
         responseType: "arraybuffer",

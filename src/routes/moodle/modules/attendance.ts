@@ -15,10 +15,10 @@ interface Attendance {
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const cookie = req.cookies.MoodleSession;
+  const token = req.headers["x-auth-moodle"];
   const curricularUnitId = req.body.curricularUnitId;
-  if (!cookie || !curricularUnitId)
-    res.status(400).send("Missing cookie or curricularUnitId");
+  if (!token || !curricularUnitId)
+    res.status(400).send("Missing curricularUnitId or token");
 
   const moodleClassId = (
     await client.query("SELECT moodle_id FROM curricular_units WHERE id = $1", [
@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
     const { data } = await axios.get(
       `https://elearning.ipvc.pt/ipvc2024/course/view.php?id=${moodleClassId}`,
       {
-        headers: { Cookie: `MoodleSession=${cookie};` },
+        headers: { Cookie: token },
       }
     );
 

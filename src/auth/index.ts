@@ -26,8 +26,8 @@ router.post("/", async (req, res) => {
       );
     if (moodle)
       promises.push(
-        moodleStrategy(username, password).then(([cookie, sesskey]) => {
-          tokens.moodle = { cookie, sesskey };
+        moodleStrategy(username, password).then(([sesskey, token]) => {
+          tokens.moodle = { sesskey, token };
         })
       );
     if (on)
@@ -38,8 +38,8 @@ router.post("/", async (req, res) => {
       );
     if (sas)
       promises.push(
-        sasStrategy(username, password).then(([token, refreshToken]) => {
-          tokens.sas = { token, refreshToken };
+        sasStrategy(username, password).then(([authorization, token]) => {
+          tokens.sas = { authorization, token };
         })
       );
     await Promise.all(promises);

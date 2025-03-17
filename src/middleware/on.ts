@@ -6,7 +6,7 @@ const checkOnAuth = async (req: Request, res: Response, next: NextFunction) => {
     const response = await axios.get("https://on.ipvc.pt/dash.php", {
       maxRedirects: 0,
       headers: {
-        Cookie: req.headers.cookie,
+        Cookie: req.headers["x-auth-on"],
       },
     });
 

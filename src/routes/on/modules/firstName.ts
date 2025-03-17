@@ -5,9 +5,7 @@ import * as cheerio from "cheerio";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const token = Object.entries(req.cookies)
-    .map(([key, value]) => `${key}=${value}`)
-    .join("; "); // PHPSESSID=...; ONIPVC=...
+  const token = req.headers["x-auth-on"];
   if (!token) {
     res.status(400).send("Missing token");
     return;

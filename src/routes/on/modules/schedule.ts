@@ -8,9 +8,7 @@ import { Lesson } from "../../../models/lesson";
 const router = Router();
 
 router.post("/", checkOnAuth, async (req, res) => {
-  const token = Object.entries(req.cookies)
-    .map(([key, value]) => `${key}=${value}`)
-    .join("; "); // PHPSESSID=...; ONIPVC=...
+  const token = req.headers["x-auth-on"];
   if (!token) {
     res.status(400).send("Missing token");
     return;

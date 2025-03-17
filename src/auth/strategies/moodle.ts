@@ -37,9 +37,9 @@ export const moodleStrategy = async (username: string, password: string) => {
     ).then((res) => res.text());
     const sesskey = html.match(/sesskey":"([^"]+)/)![1];
 
-    saveCurricularUnits(moodleSession!, sesskey);
+    saveCurricularUnits(sesskey, moodleSession!);
 
-    return [moodleSession, sesskey];
+    return [sesskey, moodleSession];
   } catch (error) {
     throw new Error(
       error instanceof Error ? error.message : "An unknown error occurred"

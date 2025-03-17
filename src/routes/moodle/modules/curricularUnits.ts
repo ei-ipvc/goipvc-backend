@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import client from "../../..";
 
-export const saveCurricularUnits = async (cookie: string, sesskey: string) => {
+export const saveCurricularUnits = async (sesskey: string, token: string) => {
   try {
     const response: AxiosResponse = await axios.post(
       `https://elearning.ipvc.pt/ipvc2024/lib/ajax/service.php?sesskey=${sesskey}&info=core_course_get_enrolled_courses_by_timeline_classification`,
@@ -17,7 +17,7 @@ export const saveCurricularUnits = async (cookie: string, sesskey: string) => {
       ],
       {
         headers: {
-          Cookie: cookie,
+          Cookie: token,
           "Content-Type": "application/json",
         },
       }

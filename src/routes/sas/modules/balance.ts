@@ -4,11 +4,11 @@ import axios from "axios";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const token = req.headers.authorization;
-  const refreshToken = req.cookies.refreshTokenWEB;
+  const authorization = req.headers.authorization;
+  const token = req.headers["x-auth-sas"];
 
-  if (!token || !refreshToken) {
-    res.status(400).send("Missing bearer or refresh token");
+  if (!authorization || !token) {
+    res.status(400).send("Missing authorization or token");
     return;
   }
 
@@ -17,8 +17,8 @@ router.get("/", async (req, res) => {
       "https://sasocial.sas.ipvc.pt/api/current_account/movements/balances",
       {
         headers: {
-          Authorization: token,
-          Cookie: refreshToken,
+          Authorization: authorization,
+          Cookie: token,
         },
       }
     );

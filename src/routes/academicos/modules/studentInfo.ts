@@ -5,7 +5,7 @@ import * as cheerio from "cheerio";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  const token = req.cookies.JSESSIONID;
+  const token = req.headers["x-auth-academicos"];
   if (!token) {
     res.status(400).send("Missing token");
     return;
@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
   try {
     const response = await axios.get("https://academicos.ipvc.pt/netpa/page", {
       headers: {
-        Cookie: `JSESSIONID=${token}`,
+        Cookie: token,
       },
     });
 

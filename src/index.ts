@@ -2,8 +2,7 @@ import { Client } from "pg";
 import dotenv from "dotenv";
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
-
-import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import authRouter from "./auth";
 import dbRouter from "./database";
@@ -27,6 +26,14 @@ client.connect();
 const app = express();
 const port = 3000;
 
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS"],
+  })
+);
+app.options("*", cors());
+
 app.use((req: Request, res: Response, next: NextFunction): void => {
   console.log(`${req.method} ${req.url}`);
   if (req.headers.cookie) {
@@ -41,7 +48,6 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 
   next();
 });
-app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
