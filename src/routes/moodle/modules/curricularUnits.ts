@@ -25,16 +25,21 @@ export const saveCurricularUnits = async (sesskey: string, token: string) => {
 
     if (!response.data[0].error) {
       const data = response.data[0].data.courses;
-      data.forEach((unit: any) => {
+      data.forEach(async (unit: any) => {
         const id = unit.idnumber.match(/\d+$/)?.[0];
         const courseId = unit.idnumber.match(/^\d+/)?.[0];
         const moodleId = unit.id;
 
-        if (id != 0 && courseId != 0)
+        if (id != 0 && courseId != 0) {
+          await client.query(
+            "INSERT INTO courses (id) VALUES ($1) ON CONFLICT DO NOTHING",
+            [courseId]
+          );
           client.query(
             "INSERT INTO curricular_units (id, course_id, moodle_id) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET course_id = $2, moodle_id = $3",
             [id, courseId, moodleId]
           );
+        }
       });
     }
   } catch (error) {

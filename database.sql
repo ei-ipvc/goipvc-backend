@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS courses (
   id SERIAL PRIMARY KEY,
-  name jsonb NOT NULL,
-  type jsonb NOT NULL
+  name jsonb,
+  type jsonb
 );
 
 CREATE TABLE IF NOT EXISTS teachers (
