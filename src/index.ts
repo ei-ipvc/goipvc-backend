@@ -63,7 +63,10 @@ app.use("/moodle", moodleRouter);
 app.use("/on", onRouter);
 app.use("/sas", sasRouter);
 
-app.use("/blueprints", express.static(path.join(__dirname, "blueprints")));
+app.use(
+  "/blueprints",
+  express.static(path.resolve(__dirname, "../src/blueprints"))
+);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
