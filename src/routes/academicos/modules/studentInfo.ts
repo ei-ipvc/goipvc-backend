@@ -31,10 +31,15 @@ router.get("/", async (req, res) => {
       .get();
 
     const studentId = parseInt(pInfo[1].match(/\d+/g)![0] || "0");
-    const fullName = pInfo[2].replace(
-      /\S+/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
-    );
+    const fullName = pInfo[2]
+      .split(" ")
+      .map((txt) => {
+        const lowerList = ["de", "da"];
+        return lowerList.includes(txt.toLowerCase())
+          ? txt.toLowerCase()
+          : txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+      })
+      .join(" ");
     const schoolName = pInfo[0].replace(
       " do Instituto Politécnico de Viana do Castelo",
       ""
