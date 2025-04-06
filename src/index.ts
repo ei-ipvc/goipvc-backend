@@ -35,24 +35,17 @@ app.use(
 app.options("*", cors());
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
-  console.log(`${req.method} ${req.url}`);
-  if (req.headers.cookie) {
-    console.log(req.headers.cookie);
-    console.log();
-  }
-
-  if (req.headers.cookie && req.headers.cookie.includes("string")) {
+  if (req.headers.cookie && req.headers.cookie.includes("...")) {
     res.status(401).send();
     return;
   }
-
   next();
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (_, res) => {
-  res.send("Hello World!");
+  res.send("Hello World1!");
 });
 
 app.use("/auth", authRouter);
