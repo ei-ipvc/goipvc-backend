@@ -1,6 +1,6 @@
 import { Router } from "express";
-import curricularUnitRouter from "./modules/curricularUnit";
 import courseIdRouter from "./modules/courseId";
+import curricularUnitRouter from "./modules/curricularUnit";
 import scheduleRouter from "./modules/schedule";
 import firstNameRouter from "./modules/firstName";
 
@@ -10,8 +10,8 @@ router.get("/", (_, res) => {
   res.send("response from /on1!");
 });
 
-router.use("/curricular-unit", curricularUnitRouter);
 router.use("/course-id", courseIdRouter);
+router.use("/curricular-unit", curricularUnitRouter);
 router.use("/schedule", scheduleRouter);
 router.use("/first-name", firstNameRouter);
 

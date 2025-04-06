@@ -12,7 +12,12 @@ router.post("/", async (req, res) => {
     res.status(400).send("Missing username or password");
     return;
   }
-  console.log(req.body);
+
+  // dummy acc credentials
+  if (username === "testing" && password === "E!x@LY5S") {
+    res.status(200);
+    return;
+  }
 
   try {
     const tokens: any = {};
