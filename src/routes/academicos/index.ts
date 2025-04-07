@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import curricularUnitsRouter from "./modules/curricularUnits";
+import studentImageRouter from "./modules/studentImage";
 import studentInfoRouter from "./modules/studentInfo";
 import tuitionsRouter from "./modules/tuitions";
 
@@ -11,6 +12,7 @@ router.get("/", (_, res) => {
 });
 
 router.use("/curricular-units", curricularUnitsRouter);
+router.use("/student-image", studentImageRouter);
 router.use("/student-info", studentInfoRouter);
 router.use("/tuitions", tuitionsRouter);
 
