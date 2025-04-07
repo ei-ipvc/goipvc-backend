@@ -14,17 +14,27 @@ interface Attendance {
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   const token = req.headers["x-auth-moodle"];
-  const curricularUnitId = req.body.curricularUnitId;
+  const curricularUnitId = req.query.curricularUnitId;
   if (!token || !curricularUnitId)
     res.status(400).send("Missing curricularUnitId or token");
 
-  const moodleClassId = (
-    await client.query("SELECT moodle_id FROM curricular_units WHERE id = $1", [
-      curricularUnitId,
-    ])
-  ).rows[0].moodle_id;
+  let moodleClassId: number = 0;
+  try {
+    const queryResult = await client.query(
+      "SELECT moodle_id FROM curricular_units WHERE id = $1",
+      [curricularUnitId]
+    );
+
+    // shouldn't happen unless request was tampered with
+    if (!queryResult.rows.length || !queryResult.rows[0].moodle_id) {
+      res.status(404).send("Given curricularUnitId does not exist");
+      return;
+    }
+
+    moodleClassId = queryResult.rows[0].moodle_id;
+  } catch (e) {}
 
   try {
     const { data } = await axios.get(

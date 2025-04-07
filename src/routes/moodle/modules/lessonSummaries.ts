@@ -16,8 +16,8 @@ interface Summary {
 
 const router = Router();
 
-router.post("/", async (req: Request, res: Response) => {
-  const curricularUnitId = req.body.curricularUnitId;
+router.get("/", async (req: Request, res: Response) => {
+  const curricularUnitId = req.query.curricularUnitId;
   const token = req.headers["x-auth-moodle"];
   if (!curricularUnitId || !token)
     res.status(400).send("Missing curricularUnitId or token");

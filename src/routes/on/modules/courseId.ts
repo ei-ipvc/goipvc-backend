@@ -3,14 +3,14 @@ import axios from "axios";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   const token = req.headers["x-auth-on"];
   if (!token) {
     res.status(400).send("Missing token");
     return;
   }
 
-  const username = req.body.username;
+  const username = req.query.username as string;
   if (!username) {
     res.status(400).send("Missing username");
     return;

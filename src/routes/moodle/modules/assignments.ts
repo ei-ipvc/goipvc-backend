@@ -3,8 +3,8 @@ import axios, { AxiosResponse } from "axios";
 
 const router = Router();
 
-router.post("/", async (req: Request, res: Response) => {
-  const sesskey = req.body.sesskey;
+router.get("/", async (req: Request, res: Response) => {
+  const sesskey = req.query.sesskey;
   const token = req.headers["x-auth-moodle"];
   if (!sesskey || !token) res.status(400).send("Missing token or sesskey");
 

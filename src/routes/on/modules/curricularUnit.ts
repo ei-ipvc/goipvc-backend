@@ -223,10 +223,10 @@ export async function curricularUnit(
   }
 }
 
-router.post("/", async (req: Request, res: Response) => {
-  const courseId = req.body.courseId;
-  const classId = req.body.classId;
-  const lang = req.body.lang;
+router.get("/", async (req: Request, res: Response) => {
+  const courseId = Number(req.query.courseId);
+  const classId = Number(req.query.classId);
+  const lang = req.query.lang as "en" | "pt" | undefined;
 
   try {
     const classInfo = await curricularUnit(courseId, classId, lang);
