@@ -7,7 +7,6 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   const token = req.headers["x-auth-academicos"];
-  console.log(token);
   if (!token) {
     res.status(400).send("Missing token");
     return;
